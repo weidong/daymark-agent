@@ -5,29 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Daymark">
+  <meta name="apple-mobile-web-app-title" content="DayMark">
   <meta name="theme-color" content="#f7f9f6" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#121815" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="style.css">
-  <title>Daymark</title>
+  <title>DayMark</title>
   <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="app-header"><div class="brand"><img src="icon.svg" width="36" height="36" alt=""><div><strong>Daymark</strong><span>你的随身小助手</span></div></div><span id="connection" role="status">正在连接…</span></header>
+  <header class="app-header"><div class="brand"><img src="icon.svg" width="36" height="36" alt=""><div><strong>DayMark</strong><span>你的随身小助手</span></div></div><span id="connection" role="status">正在连接…</span></header>
   <div id="notice" class="notice" role="status" hidden></div>
   <main>
     <section id="page-chat" class="page chat-page" aria-label="聊天">
       <div id="messages" class="messages" role="log" aria-label="聊天记录" aria-live="polite" aria-relevant="additions text"></div>
-      <div id="empty-chat" class="empty-chat"><img class="hello-icon" src="icon.svg" width="68" height="68" alt=""><h1>你好，我是Daymark</h1><p>查天气、规划出行、看看新鲜事，也可以让我记住你的习惯。</p><div class="examples"><button type="button" data-example="明天北京天气怎么样">明天北京天气怎么样 <span>↗</span></button><button type="button" data-example="记住我喜欢喝燕麦拿铁，少糖">记住我喜欢喝燕麦拿铁，少糖 <span>↗</span></button><button type="button" data-example="今天有什么 AI 热点">今天有什么 AI 热点 <span>↗</span></button></div></div>
+      <div id="empty-chat" class="empty-chat"><img class="hello-icon" src="icon.svg" width="68" height="68" alt=""><h1>你好，我是DayMark</h1><p>查天气、规划出行、看看新鲜事，也可以让我记住你的习惯。</p><div class="examples"><button type="button" data-example="明天北京天气怎么样">明天北京天气怎么样 <span>↗</span></button><button type="button" data-example="记住我喜欢喝燕麦拿铁，少糖">记住我喜欢喝燕麦拿铁，少糖 <span>↗</span></button><button type="button" data-example="今天有什么 AI 热点">今天有什么 AI 热点 <span>↗</span></button></div></div>
       <div id="model-hint" class="model-hint" hidden>先设置模型，就能开始聊天。<button type="button" id="go-settings">去设置</button></div>
       <div id="thinking" class="thinking" role="status" hidden><span class="thinking-dot"></span>思考中…</div>
-      <form id="chat-form" class="composer"><label class="sr-only" for="message-input">发送消息</label><textarea id="message-input" placeholder="和Daymark说点什么" rows="1" enterkeyhint="enter" maxlength="20000"></textarea><button id="send-button" type="submit" class="primary">发送</button></form>
+      <form id="chat-form" class="composer"><label class="sr-only" for="message-input">发送消息</label><textarea id="message-input" placeholder="和DayMark说点什么" rows="1" enterkeyhint="enter" maxlength="20000"></textarea><button id="send-button" type="submit" class="primary">发送</button></form>
     </section>
     <section id="page-services" class="page scroll-page" aria-label="服务" hidden>
-      <div class="page-heading"><div><h1>连接你的服务</h1><p>勾选后，Daymark可以直接调用这些服务查询或办事。</p></div><span id="enabled-count" class="badge">已启用 0</span></div>
+      <div class="page-heading"><div><h1>连接你的服务</h1><p>勾选后，DayMark可以直接调用这些服务查询或办事。</p></div><span id="enabled-count" class="badge">已启用 0</span></div>
       <div class="toolbar"><button id="recommend" type="button">推荐组合：高德 + AI 热点</button><button id="test-mcp" type="button" class="primary">测试连接</button></div>
       <div id="test-notice" class="muted" role="status"></div>
       <div id="catalog"><p class="muted">正在加载服务目录…</p></div>
@@ -40,7 +40,7 @@
       </form><div id="custom-list"></div></section>
     </section>
     <section id="page-settings" class="page scroll-page" aria-label="设置" hidden>
-      <div class="page-heading"><div><h1>让Daymark准备好</h1><p>填好模型信息，就可以聊天了。</p></div></div>
+      <div class="page-heading"><div><h1>让DayMark准备好</h1><p>填好模型信息，就可以聊天了。</p></div></div>
       <section class="panel"><h2>模型设置</h2><form id="model-form" class="fields">
         <fieldset id="model-mode" class="mode-choice" hidden><legend>用哪种方式连接模型</legend>
           <label><input type="radio" name="model-mode" value="own" checked>自带 Key（自己的方舟账号）</label>
@@ -50,7 +50,7 @@
           <label>模型地址<input id="model-url" type="url" required placeholder="https://ark.cn-beijing.volces.com/api/v3" autocomplete="off" spellcheck="false"></label>
           <label>模型名或接入点 ID<input id="model-name" required placeholder="例如：你的接入点 ID" autocomplete="off" spellcheck="false"></label>
           <label>API Key<span class="secret-field"><input id="model-key" type="password" required autocomplete="off" spellcheck="false" placeholder="粘贴你的 API Key"><button type="button" data-reveal="model-key" aria-label="显示 API Key">显示</button></span></label>
-          <p class="muted">Key 只保存在这台手机的浏览器里，每次对话时发给Daymark服务器转发，服务器不保存。</p>
+          <p class="muted">Key 只保存在这台手机的浏览器里，每次对话时发给DayMark服务器转发，服务器不保存。</p>
         </div>
         <div id="class-fields" class="fields" hidden>
           <label>课堂令牌<span class="secret-field"><input id="class-token" type="password" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="例如：xm-7k3f9q…" disabled><button type="button" data-reveal="class-token" aria-label="显示课堂令牌">显示</button></span></label>
@@ -58,18 +58,18 @@
         </div>
         <button type="submit" class="primary">保存模型设置</button><span id="model-status" class="muted" role="status"></span>
       </form></section>
-      <section class="panel" id="memory-panel" aria-labelledby="memory-title"><div class="service-top"><h2 id="memory-title">Daymark的记忆</h2><span id="memory-count" class="muted"></span></div>
-        <p class="muted">记忆只保存在这台手机的浏览器里。每次对话随消息发给Daymark服务器使用，服务器不保存；刷新页面或服务器重启后仍在。</p>
+      <section class="panel" id="memory-panel" aria-labelledby="memory-title"><div class="service-top"><h2 id="memory-title">DayMark的记忆</h2><span id="memory-count" class="muted"></span></div>
+        <p class="muted">记忆只保存在这台手机的浏览器里。每次对话随消息发给DayMark服务器使用，服务器不保存；刷新页面或服务器重启后仍在。</p>
         <p id="memory-warning" class="warning-text" role="status" hidden></p>
         <div id="memory-list" class="memory-list"></div>
         <div class="data-actions"><button id="clear-memory" class="danger" type="button">清空记忆</button></div></section>
-      <section class="panel"><h2>添加到主屏幕</h2><p>用 Safari 打开本页，点底部的「分享」，再选「添加到主屏幕」。以后轻点Daymark图标就能打开。</p><p class="muted">请使用同一个地址，设置和聊天记录会保存在这个浏览器里。</p></section>
+      <section class="panel"><h2>添加到主屏幕</h2><p>用 Safari 打开本页，点底部的「分享」，再选「添加到主屏幕」。以后轻点DayMark图标就能打开。</p><p class="muted">请使用同一个地址，设置和聊天记录会保存在这个浏览器里。</p></section>
       <section class="panel"><h2>本地数据</h2><p class="muted">聊天记录最多保留 200 条。清除所有本地数据会同时删除记忆、模型设置和服务 Key。</p><div class="data-actions"><button id="clear-chat" type="button">清空聊天记录</button><button id="clear-data" class="danger" type="button">清除所有本地数据</button></div></section>
-      <p class="version">Daymark <span id="version">版本加载中…</span></p>
+      <p class="version">DayMark <span id="version">版本加载中…</span></p>
     </section>
   </main>
   <nav class="bottom-nav" aria-label="主导航"><button type="button" data-tab="chat" class="active" aria-current="page"><span aria-hidden="true">◌</span>聊天</button><button type="button" data-tab="services"><span aria-hidden="true">⌘</span>服务</button><button type="button" data-tab="settings"><span aria-hidden="true">⚙</span>设置</button></nav>
-  <div id="access-overlay" class="overlay" hidden><section class="access-card" role="dialog" aria-modal="true" aria-labelledby="access-title"><h2 id="access-title">欢迎使用Daymark</h2><p id="access-description">请输入服务器的访问码。</p><form id="access-form" class="fields"><label>访问码<input id="access-input" type="password" required autocomplete="off"></label><div class="toolbar"><button type="button" id="access-cancel">取消</button><button type="submit" class="primary">连接</button></div></form></section></div>
-  <noscript>请在 Safari 设置中开启 JavaScript，然后重新打开Daymark。</noscript>
+  <div id="access-overlay" class="overlay" hidden><section class="access-card" role="dialog" aria-modal="true" aria-labelledby="access-title"><h2 id="access-title">欢迎使用DayMark</h2><p id="access-description">请输入服务器的访问码。</p><form id="access-form" class="fields"><label>访问码<input id="access-input" type="password" required autocomplete="off"></label><div class="toolbar"><button type="button" id="access-cancel">取消</button><button type="submit" class="primary">连接</button></div></form></section></div>
+  <noscript>请在 Safari 设置中开启 JavaScript，然后重新打开DayMark。</noscript>
 </body>
 </html>

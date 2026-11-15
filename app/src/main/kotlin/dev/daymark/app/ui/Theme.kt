@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.sp
 
 private val Green = Color(0xFF1E6B52)
 
-/** Stable Daymark colors; readable light/dark surfaces independent of the phone wallpaper. */
+/** Stable DayMark colors; readable light/dark surfaces independent of the phone wallpaper. */
 @Composable
 fun DaymarkTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()

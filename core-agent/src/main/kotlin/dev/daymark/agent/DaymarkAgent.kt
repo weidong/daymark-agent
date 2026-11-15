@@ -29,7 +29,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 
 /**
- * The Daymark agent: chat turns with memory and phone tools ([handle]), and phone tasks run by
+ * The DayMark agent: chat turns with memory and phone tools ([handle]), and phone tasks run by
  * the operator loop or a skill flow ([runPhoneTask]). See docs/ARCHITECTURE.md.
  *
  * Conversation history is kept in memory, bounded to the last [HISTORY_LIMIT] user/assistant messages.

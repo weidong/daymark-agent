@@ -200,6 +200,6 @@ class AppGraph(context: Context, private val llm: LlmClientFactory = LlmClients.
     }
 
     companion object {
-        const val TAG = "Daymark"
+        const val TAG = "DayMark"
     }
 }

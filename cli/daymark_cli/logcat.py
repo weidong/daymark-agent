@@ -1,4 +1,4 @@
-"""Parsing of ``Daymark: <run_id> <EventKind> <json>`` logcat lines."""
+"""Parsing of ``DayMark: <run_id> <EventKind> <json>`` logcat lines."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import re
 
 from .traces import event_fields
 
-# threadtime: "10-31 12:00:00.123  1234  1250 I Daymark: r1 StepPlanned {...}"
-# brief:      "I/Daymark( 1234): r1 StepPlanned {...}"
-_TAG_RE = re.compile(r"(?:^|[\s/])Daymark\s*(?:\(\s*\d+\))?\s*:\s(?P<msg>.*)$")
+# threadtime: "10-31 12:00:00.123  1234  1250 I DayMark: r1 StepPlanned {...}"
+# brief:      "I/DayMark( 1234): r1 StepPlanned {...}"
+_TAG_RE = re.compile(r"(?:^|[\s/])DayMark\s*(?:\(\s*\d+\))?\s*:\s(?P<msg>.*)$")
 _TIME_RE = re.compile(r"^(?:\d\d-\d\d\s+)?(?P<time>\d\d:\d\d:\d\d\.\d+)")
 _KIND_RE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
 
@@ -43,7 +43,7 @@ class LogEvent:
 
 
 def message_of(line: str):
-    """The log message of a Daymark-tagged logcat line, or None."""
+    """The log message of a DayMark-tagged logcat line, or None."""
     m = _TAG_RE.search(line.rstrip("\r\n"))
     return m.group("msg") if m else None
 

@@ -1,6 +1,6 @@
 # daymark CLI
 
-面向技能作者的开发工具。需要 Python 3.8+，只依赖标准库。通过 `adb` 与运行Daymark debug 包的手机
+面向技能作者的开发工具。需要 Python 3.8+，只依赖标准库。通过 `adb` 与运行DayMark debug 包的手机
 通信（见 `docs/ARCHITECTURE.md` 中的「调试桥」）。
 
 ```
@@ -16,7 +16,7 @@ python3 cli/daymark.py [--adb PATH] [--serial S] <command> ...
 | `push <skill-dir>...` | 先校验，再替换手机上的 `/sdcard/Android/data/com.daymark.app/files/skills/<name>/`，并广播 `RELOAD_SKILLS` |
 | `run "<goal>" [--skill name] [--run-id id] [--follow]` | 广播 `RUN`；`--follow` 持续输出该次运行的事件，直到 `PhoneTaskFinished`/`Failed`（成功时退出码为 0） |
 | `stop` | 广播 `STOP` |
-| `logs [--run-id id]` | 持续读取 `logcat -s Daymark`，格式化输出 `<run_id> <EventKind> <json>` 行 |
+| `logs [--run-id id]` | 持续读取 `logcat -s DayMark`，格式化输出 `<run_id> <EventKind> <json>` 行 |
 | `traces pull <run_id> [--out dir]` | 用 `adb pull` 把 `traces/<run_id>` 拉到 `dir`（默认 `./traces`） |
 | `traces show <path-or-run_id> [--dir traces] [--full]` | 把 `trace.jsonl` 渲染成步骤表；本地没有的 run id 会先拉取 |
 

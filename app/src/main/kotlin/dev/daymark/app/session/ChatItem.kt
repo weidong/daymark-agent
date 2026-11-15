@@ -46,7 +46,7 @@ object StepText {
         is AgentEvent.PhoneTaskStarted -> "开始：${event.goal}"
         is AgentEvent.StepPlanned -> "第 ${event.stepIndex + 1} 步：${action(event.action)}"
         is AgentEvent.StepBlocked -> "第 ${event.stepIndex + 1} 步已拦截"
-        is AgentEvent.NeedsUser -> if (event.takeover) "请接管手机，完成后回到Daymark回复" else "等待你回答：${event.question}"
+        is AgentEvent.NeedsUser -> if (event.takeover) "请接管手机，完成后回到DayMark回复" else "等待你回答：${event.question}"
         is AgentEvent.PhoneTaskFinished -> if (event.success) "已完成" else "未完成"
         else -> null
     }

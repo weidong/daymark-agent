@@ -1,4 +1,4 @@
-"""daymark：Daymark技能开发者 CLI（校验、推送、运行、日志、轨迹）。"""
+"""daymark：DayMark技能开发者 CLI（校验、推送、运行、日志、轨迹）。"""
 
 from __future__ import annotations
 
@@ -223,7 +223,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("stop", parents=[common], help="停止正在运行的任务")
     p.set_defaults(func=cmd_stop)
 
-    p = sub.add_parser("logs", parents=[common], help="从 logcat 持续读取Daymark事件")
+    p = sub.add_parser("logs", parents=[common], help="从 logcat 持续读取DayMark事件")
     p.add_argument("--run-id", help="只显示该次运行的事件")
     p.set_defaults(func=cmd_logs)
 

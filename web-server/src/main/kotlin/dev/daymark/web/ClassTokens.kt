@@ -58,7 +58,7 @@ object ClassTokenCodec {
         fun time(ms: Long?) = ms?.let { JsonPrimitive(OffsetDateTime.ofInstant(Instant.ofEpochMilli(it), zone).toString()) } ?: JsonNull
         val root = buildJsonObject {
             put("version", 1)
-            put("note", "Daymark课堂令牌。只存 SHA-256 哈希；用 web-server tokens 管理，不要手改。")
+            put("note", "DayMark课堂令牌。只存 SHA-256 哈希；用 web-server tokens 管理，不要手改。")
             put("tokens", JsonArray(tokens.map { t -> buildJsonObject {
                 put("label", t.label); put("prefix", t.prefix); put("sha256", t.hash)
                 put("createdAt", time(t.createdAt)); put("expiresAt", time(t.expiresAt)); put("revoked", t.revoked)

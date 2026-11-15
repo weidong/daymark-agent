@@ -1,4 +1,4 @@
-"""Daymark 飞书客户端：定位日志结构、写入记录、读写校验。
+"""DayMark 飞书客户端：定位日志结构、写入记录、读写校验。
 
 用法：
     python tools/feishu/feishu_client.py today

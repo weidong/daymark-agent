@@ -1,4 +1,4 @@
-"""Daymark 飞书用户授权：一次授权，令牌保存在 .secrets/tokens.json。
+"""DayMark 飞书用户授权：一次授权，令牌保存在 .secrets/tokens.json。
 
 用法：
     python tools/feishu/login.py
@@ -27,7 +27,7 @@ class Handler(BaseHTTPRequestHandler):
         code = query.get("code", [""])[0]
         HOLD["code"] = code
         body = (
-            "<html><head><meta charset='utf-8'><title>Daymark</title></head>"
+            "<html><head><meta charset='utf-8'><title>DayMark</title></head>"
             "<body style='font-family:sans-serif;padding:40px'>"
             "<h2>授权完成</h2><p>可以关闭此页面。</p></body></html>"
         ).encode("utf-8")

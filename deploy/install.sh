@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 一键把Daymark网页版装到一台 Linux 云服务器（Debian/Ubuntu 优先，其他发行版按提示手动装依赖）。
+# 一键把DayMark网页版装到一台 Linux 云服务器（Debian/Ubuntu 优先，其他发行版按提示手动装依赖）。
 # 在你自己的电脑上、仓库根目录运行；通过 ssh 登录服务器，需要服务器账号有 sudo 权限。
 #
 # 用法：
@@ -286,7 +286,7 @@ generated=false
 if [[ -z "$code" ]]; then code="$(head -c 18 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 12)"; generated=true; fi
 umask 027
 cat > "$env_file.new" <<ENV
-# Daymark网页版设置。改完后：sudo systemctl restart daymark-web
+# DayMark网页版设置。改完后：sudo systemctl restart daymark-web
 XIAOMAN_WEB_ACCESS_CODE=$code
 XIAOMAN_PORT=$PORT
 XIAOMAN_TZ=$TZ_NAME

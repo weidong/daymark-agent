@@ -184,7 +184,7 @@ class Runner(
 
     private fun printEvent(event: AgentEvent) {
         when (event) {
-            is AgentEvent.Reply -> out.println("Daymark：${event.text}")
+            is AgentEvent.Reply -> out.println("DayMark：${event.text}")
             is AgentEvent.SkillChosen -> out.println("使用技能：${event.skillName}")
             is AgentEvent.PhoneTaskStarted -> out.println("开始手机任务：${event.goal}" + (event.skillName?.let { "（技能 $it）" } ?: ""))
             is AgentEvent.StepPlanned -> out.println("  [${event.stepIndex + 1}] ${ScreenText.describe(event.action)}")
@@ -201,7 +201,7 @@ class Runner(
 
     companion object {
         val USAGE = """
-            ios-runner：在 Mac 上通过 WebDriverAgent 操作 iPhone 的Daymark。
+            ios-runner：在 Mac 上通过 WebDriverAgent 操作 iPhone 的DayMark。
 
             用法：
               ios-runner check [--wda URL]                     检查 WDA 连接、截图和界面节点

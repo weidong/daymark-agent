@@ -18,7 +18,7 @@ RECEIVER = APP_PACKAGE + "/.debug.DebugReceiver"
 ACTION_RUN = "com.daymark.debug.RUN"
 ACTION_STOP = "com.daymark.debug.STOP"
 ACTION_RELOAD = "com.daymark.debug.RELOAD_SKILLS"
-LOG_TAG = "Daymark"
+LOG_TAG = "DayMark"
 
 
 class AdbError(Exception):

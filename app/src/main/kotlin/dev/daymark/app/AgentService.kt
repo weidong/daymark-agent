@@ -62,7 +62,7 @@ class AgentService : LifecycleService() {
     }
 
     companion object {
-        private const val TAG = "Daymark"
+        private const val TAG = "DayMark"
 
         /**
          * Starts the service. May be refused when the app is in the background (Android 12+); the

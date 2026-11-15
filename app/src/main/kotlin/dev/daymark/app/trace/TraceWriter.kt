@@ -10,7 +10,7 @@ import java.io.IOException
 /**
  * Writes `<root>/<run_id>/trace.jsonl` (one [TraceFormat.line] per event), `audit.jsonl` (one line
  * per Sentinel decision) and `step-<n>.png` screenshots, and logs every event as
- * `<run_id> <EventKind> <json>` through [log] (logcat tag `Daymark` in the app).
+ * `<run_id> <EventKind> <json>` through [log] (logcat tag `DayMark` in the app).
  *
  * The run id is the event's task id. [secrets] (the configured API keys) are masked in every line
  * as a last line of defence; events never carry them. Thread-safe.

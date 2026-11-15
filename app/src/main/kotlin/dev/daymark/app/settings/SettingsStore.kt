@@ -60,7 +60,7 @@ class SettingsStore(private val plain: SharedPreferences, internal val secret: S
     }
 
     companion object {
-        private const val TAG = "Daymark"
+        private const val TAG = "DayMark"
         private const val PLAIN_FILE = "settings"
         private const val SECRET_FILE = "settings-secrets"
         private const val CHAT = "chat."

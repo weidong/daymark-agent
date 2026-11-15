@@ -1,5 +1,5 @@
 {
-  "_comment": "将需要的环境变量注入Daymark；stdio 社区服务器仅适用于桌面端，需要自行安装 Node.js/npx。",
+  "_comment": "将需要的环境变量注入DayMark；stdio 社区服务器仅适用于桌面端，需要自行安装 Node.js/npx。",
   "mcpServers": {
     "amap": {
       "title": "高德地图",

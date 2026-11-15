@@ -58,7 +58,7 @@ object AgentTools {
         ToolSpec(LIST_SKILLS, "列出所有可用的手机操作技能。", schema(emptyList())),
         ToolSpec(
             REMINDER_SET,
-            "设置一条定时提醒：到点后Daymark会在手机上弹出通知。",
+            "设置一条定时提醒：到点后DayMark会在手机上弹出通知。",
             schema(
                 listOf("text", "at"),
                 "text" to str("提醒内容，如 喝水、带伞"),

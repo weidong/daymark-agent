@@ -124,7 +124,7 @@ class WebServer(
     }
     private fun authorized(x: HttpExchange): Boolean {
         val code = options.accessCode?.takeIf { it.isNotEmpty() } ?: return true
-        return MessageDigest.isEqual(code.toByteArray(), x.requestHeaders.getFirst("X-Daymark-Access").orEmpty().toByteArray())
+        return MessageDigest.isEqual(code.toByteArray(), x.requestHeaders.getFirst("X-DayMark-Access").orEmpty().toByteArray())
     }
     /** Behind Caddy (a loopback peer) the client is the last X-Forwarded-For entry, which Caddy sets itself. */
     private fun clientIp(x: HttpExchange): String {
@@ -138,7 +138,7 @@ class WebServer(
         if (x.requestMethod != method) throw Problem(405, "请求方法不支持")
         when (path) {
             "/api/info" -> json(x, 200, buildJsonObject {
-                put("name", "Daymark"); put("version", "1.1"); put("accessCodeRequired", !options.accessCode.isNullOrEmpty())
+                put("name", "DayMark"); put("version", "1.1"); put("accessCodeRequired", !options.accessCode.isNullOrEmpty())
                 put("stdioMcp", stdio.enabled); put("memory", "browser"); put("classTokens", gateway?.active == true)
                 put("claim", claims?.info() ?: buildJsonObject { put("state", "off") })
             })
@@ -156,7 +156,7 @@ class WebServer(
             })
             "/api/session" -> { readLimited(x); json(x, 200, buildJsonObject { put("sessionId", newSession().id) }) }
             else -> {
-                val s = session(x.requestHeaders.getFirst("X-Daymark-Session").orEmpty()) ?: throw Problem(404, "会话已过期")
+                val s = session(x.requestHeaders.getFirst("X-DayMark-Session").orEmpty()) ?: throw Problem(404, "会话已过期")
                 val body = body(x)
                 when (path) {
                     "/api/answer" -> {

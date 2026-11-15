@@ -1,4 +1,4 @@
-# Daymark
+# DayMark
 
 [中文](README.md)
 
@@ -38,9 +38,9 @@ header for its environment variables.
 
 ## Use
 
-1. Install the debug APK and open Daymark.
+1. Install the debug APK and open DayMark.
 2. Settings: enter base URL, model and API key for the chat and operator models.
-3. Turn on the Daymark accessibility service when the app asks.
+3. Turn on the DayMark accessibility service when the app asks.
 4. Chat: "帮我打车回家", "记住我家在 ...", "把 Wi-Fi 打开".
 
 ## Skills and developer CLI

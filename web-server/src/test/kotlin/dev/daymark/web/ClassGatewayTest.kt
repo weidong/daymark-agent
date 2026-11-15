@@ -60,7 +60,7 @@ class ClassGatewayTest {
                         put("id", "c1"); put("object", "chat.completion"); put("model", model)
                         put("choices", JsonArray(listOf(buildJsonObject {
                             put("index", 0); put("finish_reason", "stop")
-                            put("message", buildJsonObject { put("role", "assistant"); put("content", "你好，我是Daymark") })
+                            put("message", buildJsonObject { put("role", "assistant"); put("content", "你好，我是DayMark") })
                         })))
                         if (usage) put("usage", buildJsonObject { put("prompt_tokens", 100); put("completion_tokens", 20); put("total_tokens", 120) })
                     }.toString())
@@ -127,7 +127,7 @@ class ClassGatewayTest {
             server(config(up, st.file), logs).use { s ->
                 val r = call(s, "/v1/chat/completions", st.tokens[0], chatBody())
                 assertEquals(200, r.code, r.text)
-                assertEquals("你好，我是Daymark", r.json.arr("choices")[0].jsonObject.obj("message").str("content"))
+                assertEquals("你好，我是DayMark", r.json.arr("choices")[0].jsonObject.obj("message").str("content"))
                 val sent = up.seen.single()
                 assertEquals("Bearer $upstreamKey", sent.auth)
                 assertEquals("doubao-real-id", sent.body.str("model"), "alias is replaced by the real model ID")
@@ -343,7 +343,7 @@ class ClassGatewayTest {
                 }
                 val ok = turn(st.tokens[0])
                 assertEquals(listOf("reply", "done"), ok.map { it.str("type") }, ok.toString())
-                assertEquals("你好，我是Daymark", ok[0].str("text"))
+                assertEquals("你好，我是DayMark", ok[0].str("text"))
                 val sent = up.seen.single()
                 assertEquals("Bearer $upstreamKey", sent.auth); assertEquals("doubao-real-id", sent.body.str("model"))
                 // Usage is shared with /v1: 120 from the web turn + 120 here exceeds the daily 200.
@@ -402,7 +402,7 @@ class ClassGatewayTest {
                     app.complete(ChatRequest(listOf(ChatMessage(ChatRole.USER, listOf(ContentPart.Text("点哪里"), ContentPart.ImagePng(ByteArray(2048) { 7 })))),
                         jsonMode = true))
                 }
-                assertEquals("你好，我是Daymark", reply.text); assertEquals(Usage(100, 20), reply.usage)
+                assertEquals("你好，我是DayMark", reply.text); assertEquals(Usage(100, 20), reply.usage)
                 val sent = up.seen.single().body
                 assertEquals("doubao-real-id", sent.str("model")); assertEquals("json_object", sent.obj("response_format").str("type"))
                 assertEquals("image_url", sent.arr("messages")[0].jsonObject.arr("content")[1].jsonObject.str("type"))
@@ -416,7 +416,7 @@ class ClassGatewayTest {
     private fun webPost(s: WebServer, path: String, sid: String?, body: String): String {
         val c = URL("http://127.0.0.1:${s.port}$path").openConnection() as HttpURLConnection
         c.connectTimeout = 3000; c.readTimeout = 10_000; c.requestMethod = "POST"; c.doOutput = true
-        sid?.let { c.setRequestProperty("X-Daymark-Session", it) }
+        sid?.let { c.setRequestProperty("X-DayMark-Session", it) }
         c.outputStream.use { it.write(body.toByteArray()) }
         return try { c.inputStream.bufferedReader().use { it.readText() } } finally { c.disconnect() }
     }

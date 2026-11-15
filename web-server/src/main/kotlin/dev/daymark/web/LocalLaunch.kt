@@ -69,7 +69,7 @@ object LocalLaunch {
     fun announce(port: Int, accessCode: String?, out: (String) -> Unit = ::println) {
         val addresses = lanAddresses()
         out("")
-        out("================ Daymark网页版已在这台电脑上启动 ================")
+        out("================ DayMark网页版已在这台电脑上启动 ================")
         out("电脑浏览器打开：http://127.0.0.1:$port/connect （扫码页，会自动打开）")
         if (addresses.isEmpty()) out("没找到局域网地址：请先连上 Wi-Fi，或让电脑连手机热点，然后在扫码页点“刷新地址”。")
         else {
@@ -77,7 +77,7 @@ object LocalLaunch {
             addresses.forEachIndexed { i, a -> out("  ${if (i == 0) "→" else " "} http://${a.address}:$port/   （${a.label}：${a.interfaceName}）") }
         }
         if (!accessCode.isNullOrEmpty()) out("访问码：$accessCode")
-        out("关掉这个窗口（或按 Ctrl+C）就会停止Daymark。")
+        out("关掉这个窗口（或按 Ctrl+C）就会停止DayMark。")
         out("==============================================================")
         out("")
     }
@@ -112,7 +112,7 @@ object LocalLaunch {
             x.sendResponseHeaders(code, bytes.size.toLong()); x.responseBody.write(bytes)
         }
         if (!fromThisComputer(x)) return send(403, "text/plain; charset=utf-8",
-            "扫码页只能在运行Daymark的这台电脑上打开（地址用 127.0.0.1 或 localhost）。".toByteArray())
+            "扫码页只能在运行DayMark的这台电脑上打开（地址用 127.0.0.1 或 localhost）。".toByteArray())
         if (x.requestMethod != "GET") return send(405, "text/plain; charset=utf-8", "请求方法不支持".toByteArray())
         if (path == "/connect/info") return send(200, "application/json; charset=utf-8", buildJsonObject {
             put("port", port)

@@ -1,6 +1,6 @@
-# 在 Mac 上使用Daymark操作 iPhone
+# 在 Mac 上使用DayMark操作 iPhone
 
-iOS 限制 App 读取和操作其他 App 的界面，因此无法像 Android 那样，在 iPhone 上装一个Daymark App 就直接操作淘宝、设置等应用。本方案需要一台 Mac，通过 Apple 的 UI 测试工具控制你自己的 iPhone。
+iOS 限制 App 读取和操作其他 App 的界面，因此无法像 Android 那样，在 iPhone 上装一个DayMark App 就直接操作淘宝、设置等应用。本方案需要一台 Mac，通过 Apple 的 UI 测试工具控制你自己的 iPhone。
 
 Mac 上的 JVM 命令行 `ios-runner` 负责聊天、模型请求、记忆、技能、安全确认和 Agent 操作循环，复用 `core-*` 模块。`ios-hands` 把点击、输入、截图等请求交给 iPhone 上的 WebDriverAgent（下文简称 WDA）。WDA 是 Appium 维护的 XCTest UI 测试 runner，由 Xcode 构建、签名并在手机上运行。
 

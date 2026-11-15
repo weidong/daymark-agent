@@ -54,7 +54,7 @@ class ConsoleChannels(
     }
 
     override suspend fun ask(taskId: String, question: String, takeover: Boolean): String = mutex.withLock {
-        out.println("Daymark问你：$question")
+        out.println("DayMark问你：$question")
         if (!interactive) return@withLock NOBODY_HERE
         out.print(if (takeover) "请在手机上完成这一步，完成后按回车 > " else "你的回答 > ")
         out.flush()

@@ -1,4 +1,4 @@
-# Daymark网页版的 Caddy 配置模板。install.sh 会把 __SITE__ 和 __PORT__ 换成实际值，写到 /etc/caddy/Caddyfile。
+# DayMark网页版的 Caddy 配置模板。install.sh 会把 __SITE__ 和 __PORT__ 换成实际值，写到 /etc/caddy/Caddyfile。
 #
 # __SITE__ 两种写法（Caddy 都会自动申请 Let's Encrypt 证书并续期，需要服务器 80/443 对公网开放）：
 #   1. 自有域名：先把域名的 A 记录指向服务器公网 IP，例如  daymark.example.com
@@ -38,8 +38,8 @@ __SITE__ {
 	# 	format filter {
 	# 		wrap console
 	# 		fields {
-	# 			request>headers>X-Daymark-Access delete
-	# 			request>headers>X-Daymark-Session delete
+	# 			request>headers>X-DayMark-Access delete
+	# 			request>headers>X-DayMark-Session delete
 	# 		}
 	# 	}
 	# }

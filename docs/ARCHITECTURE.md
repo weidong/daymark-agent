@@ -1,6 +1,6 @@
-# Daymark架构
+# DayMark架构
 
-Daymark是一个跑在 Android 手机上的开源私人助手：你在它的 App 里聊天，它替你操作手机上的其他
+DayMark是一个跑在 Android 手机上的开源私人助手：你在它的 App 里聊天，它替你操作手机上的其他
 App。框架负责“手”（无障碍操作）、“眼”（读屏）、记忆、安全闸门和模型调用；具体场景（打车、外卖、
 购票……）由用户以**场景技能**的形式添加。技能是 Markdown/YAML 小文件夹，不需要重新打包 APK。
 
@@ -106,14 +106,14 @@ Agent 会按目标检索 `howto` 笔记，把命中结果放进操作提示词�
 笔记是 `<external files>/memory/` 下的 Markdown 文件，采用 Basic Memory 格式：frontmatter 包含
 `title/type/permalink/tags`；`## Observations` 下每行为 `- [category] content #tag (context)`；
 `## Relations` 下每行为 `- relation [[Target]]`。整个目录可以直接拷进 Obsidian 仓库。「忘记」会删除文件。
-Daymark自行实现这一格式，没有内嵌 Basic Memory（AGPL-3.0）的代码。
+DayMark自行实现这一格式，没有内嵌 Basic Memory（AGPL-3.0）的代码。
 
 ## 安全（Sentinel）
 
 每个操作都在模型之外评估：
 
 1. `deny`（拒绝）：向密码框输入；在受保护（FLAG_SECURE）页面上操作；技能声明了 `apps` 时操作清单之外的
-   包（桌面启动器和Daymark自身除外）。
+   包（桌面启动器和DayMark自身除外）。
 2. `ask`（询问）：`tap` / `long_press` / `type` 的目标文字或被操作节点的文字包含确认词。确认词包括内置列表
    （支付、付款、确认支付、立即支付、转账、发送、删除、下单、提交订单、确认呼叫、呼叫、购买、
    pay、send、delete、purchase、order）以及技能的 `confirm_before`。在技能内，`deeplink` 与技能的
@@ -134,7 +134,7 @@ App 注册了 `com.daymark.app.debug.DebugReceiver`（只在 debug 清单中导�
 
 示例：`adb shell am broadcast -n com.daymark.app/.debug.DebugReceiver -a com.daymark.debug.RUN --es goal "打开设置" --es run_id r1`
 
-日志：logcat 标签 `Daymark`，每个事件一行：`Daymark: <run_id> <EventKind> <json>`。
+日志：logcat 标签 `DayMark`，每个事件一行：`DayMark: <run_id> <EventKind> <json>`。
 
 轨迹：`<external files>/traces/<run_id>/trace.jsonl`，每行一个 JSON 对象：
 
