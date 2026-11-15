@@ -29,13 +29,13 @@ class AppLinksTest {
 
     @Test
     fun minuteDefaultsToZeroAndLabelIsOptional() {
-        val intent = assertNotNull(AppLinks.intentFor(Uri.parse("XIAOMAN://alarm/set/?hour=7")))
+        val intent = assertNotNull(AppLinks.intentFor(Uri.parse("DAYMARK://alarm/set/?hour=7")))
         assertEquals(0, intent.getIntExtra(AlarmClock.EXTRA_MINUTES, -1))
         assertFalse(intent.hasExtra(AlarmClock.EXTRA_MESSAGE))
     }
 
     @Test
-    fun otherSchemesAreNotDaymarkLinks() {
+    fun otherSchemesAreNotDayMarkLinks() {
         assertNull(AppLinks.intentFor(Uri.parse("amapuri://route/plan/?dname=家")))
     }
 
