@@ -117,8 +117,12 @@ class Doc:
     def __init__(self, tokens, doc_id):
         self.tokens = tokens
         self.doc_id = doc_id
+        self._cache = None
 
     def blocks(self):
+        # 同一次操作里多处需要块列表，缓存一次，减少飞书接口往返。
+        if self._cache is not None:
+            return self._cache
         items, page_token = [], None
         while True:
             path = f"/docx/v1/documents/{self.doc_id}/blocks?page_size=500&document_revision_id=-1"
@@ -131,6 +135,7 @@ class Doc:
             if not r["data"].get("has_more"):
                 break
             page_token = r["data"].get("page_token")
+        self._cache = items
         return items
 
     def page(self, blocks):
@@ -144,6 +149,15 @@ class Doc:
                 token=self.tokens.access, payload={"index": index, "children": children})
         if r.get("code") != 0:
             raise RuntimeError(f"插入失败: {r}")
+        self._cache = None
+        return r
+
+    def delete(self, start, end):
+        r = api("DELETE", f"/docx/v1/documents/{self.doc_id}/blocks/{self.doc_id}/children/batch_delete",
+                token=self.tokens.access, payload={"start_index": start, "end_index": end})
+        if r.get("code") != 0:
+            raise RuntimeError(f"删除失败: {r}")
+        self._cache = None
         return r
 
 
@@ -603,12 +617,7 @@ def cmd_review(doc, year, month, path, force):
         return
 
     if end > start + 1:
-        r = api("DELETE",
-                f"/docx/v1/documents/{doc.doc_id}/blocks/{doc.doc_id}/children/batch_delete",
-                token=doc.tokens.access,
-                payload={"start_index": start + 1, "end_index": end})
-        if r.get("code") != 0:
-            raise RuntimeError(f"清理旧内容失败: {r}")
+        doc.delete(start + 1, end)
         blocks = doc.blocks()
         page = doc.page(blocks)
         children = page.get("children", [])
