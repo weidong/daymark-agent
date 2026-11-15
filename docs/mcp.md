@@ -1,6 +1,6 @@
 # 接入 MCP：不操作手机也能办事
 
-查天气、规划路线、查车票、叫车、点餐这类事，很多平台已经提供了 MCP 服务。小满可以直接调用这些服务，不用在手机上一步步点。iPhone 用户也能用，因为这条路不需要操作手机屏幕。
+查天气、规划路线、查车票、叫车、点餐这类事，很多平台已经提供了 MCP 服务。Daymark可以直接调用这些服务，不用在手机上一步步点。iPhone 用户也能用，因为这条路不需要操作手机屏幕。
 
 聊天模型会同时看到内置工具（记忆、提醒、`phone_task`）和 MCP 工具。MCP 工具名的格式是 `服务器名__工具名`，比如 `amap__maps_weather`。能用 MCP 工具完成的事，模型会优先用工具；剩下只有 App 能做的事，再交给 `phone_task` 操作手机。
 
@@ -31,7 +31,7 @@
 ## 在 Mac 上用（ios-runner）
 
 ```bash
-cp mcp/servers.example.json ~/.xiaoman-ios/mcp.json   # 按需删改服务器，把 enabled 改成 true
+cp mcp/servers.example.json ~/.daymark-ios/mcp.json   # 按需删改服务器，把 enabled 改成 true
 export AMAP_MAPS_API_KEY=你的高德Key                     # 只放在环境变量里
 ios-runner tools                                        # 看哪些服务器连上了、有哪些工具
 ios-runner call amap__maps_weather '{"city":"北京"}'     # 不经过模型，直接调一个工具，用来排查
@@ -43,13 +43,13 @@ ios-runner chat
 
 ## 一键勾选
 
-内置目录在 `core-mcp/src/main/resources/dev/xiaoman/mcp/catalog.json`，安卓 App 的「服务」页和网页版的「服务」页都读这份目录：打开开关、填 Key、点「测试连接」即可，也可以添加任意 https 的 MCP 服务。需要 Node.js 的 stdio 服务（如 12306）不会出现在安卓 App 上；网页版只在服务器装了 Node.js 时可用，否则显示为不可用，见 [web.md](web.md#12306-火车票需要-nodejs)。
+内置目录在 `core-mcp/src/main/resources/dev/daymark/mcp/catalog.json`，安卓 App 的「服务」页和网页版的「服务」页都读这份目录：打开开关、填 Key、点「测试连接」即可，也可以添加任意 https 的 MCP 服务。需要 Node.js 的 stdio 服务（如 12306）不会出现在安卓 App 上；网页版只在服务器装了 Node.js 时可用，否则显示为不可用，见 [web.md](web.md#12306-火车票需要-nodejs)。
 
 ## 在安卓 App 上用
 
 在底部的「服务」页勾选，Key 保存在加密存储里，保存后下一条消息生效。需要确认的工具会在聊天里提问，回复“确认”才会执行，回复其他内容就取消。
 
-进阶：也可以用 adb 把 `mcp.json` 放到 `/sdcard/Android/data/dev.xiaoman.app/files/mcp.json`，其中的远程 HTTP 服务器会与勾选的服务合并（Key 直接写在文件里，stdio 服务器会被跳过）。
+进阶：也可以用 adb 把 `mcp.json` 放到 `/sdcard/Android/data/com.daymark.app/files/mcp.json`，其中的远程 HTTP 服务器会与勾选的服务合并（Key 直接写在文件里，stdio 服务器会被跳过）。
 
 ## 实现位置
 

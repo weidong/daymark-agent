@@ -1,6 +1,6 @@
-# 小满网页版：iPhone 不装 App 也能用
+# Daymark网页版：iPhone 不装 App 也能用
 
-iPhone 不允许一个 App 操作其他 App，没有付费开发者账号也发不了 TestFlight。小满网页版绕开这两个限制：用 Safari 打开链接，点「分享 → 添加到主屏幕」，之后像 App 一样从桌面的小满图标打开。界面配色、图标与安卓 App 一致，安卓和电脑的浏览器同样能用。
+iPhone 不允许一个 App 操作其他 App，没有付费开发者账号也发不了 TestFlight。Daymark网页版绕开这两个限制：用 Safari 打开链接，点「分享 → 添加到主屏幕」，之后像 App 一样从桌面的Daymark图标打开。界面配色、图标与安卓 App 一致，安卓和电脑的浏览器同样能用。
 
 网页版不操作手机屏幕，靠 [MCP 服务](mcp.md) 办事：在「服务」页勾选高德、滴滴等，或者添加任意一个 https 的 MCP 服务。
 
@@ -13,14 +13,14 @@ iPhone 不允许一个 App 操作其他 App，没有付费开发者账号也发�
 | 接入其他 MCP | 填名称、https 地址、可选 Authorization 头，选择调用前什么时候确认 |
 | 调用前确认 | 叫车、下单等写操作会弹出确认卡片，点「允许」才执行，点「拒绝」或 3 分钟不处理就取消 |
 | 提醒 | 网页不能在后台定时弹通知，提醒会生成「添加到日历」按钮，交给 iPhone 日历按时提醒 |
-| 记忆 | 说「记住我喜欢燕麦拿铁」，小满会记下来；刷新页面、服务器重启后仍在。「设置 → 小满的记忆」里可以查看、删除单条或清空 |
+| 记忆 | 说「记住我喜欢燕麦拿铁」，Daymark会记下来；刷新页面、服务器重启后仍在。「设置 → Daymark的记忆」里可以查看、删除单条或清空 |
 | 跳转 App | 回复里的链接和高德、淘宝等 App 跳转链接可以直接点 |
 
 做不到的：操作手机上的 App（这需要安卓版或 Mac + WDA）；网页不能后台运行，关掉页面后不会主动提醒（提醒请添加到日历）。
 
 ## 记忆保存在哪里
 
-记忆只保存在学员自己的浏览器里（localStorage 的 `xiaoman.memory`），服务器不落盘：
+记忆只保存在学员自己的浏览器里（localStorage 的 `daymark.memory`），服务器不落盘：
 
 1. 每次发消息，网页把本地记忆（最新的 200 条、约 180KB 以内）随请求一起发给服务器。
 2. 服务器把它们放进本轮对话的内存记忆里，模型照常检索、引用（与安卓版相同的 Basic Memory Markdown 格式）。
@@ -31,15 +31,15 @@ iPhone 不允许一个 App 操作其他 App，没有付费开发者账号也发�
 
 ## Key 放在哪里
 
-模型 Key 和服务 Key 只保存在这台手机的浏览器里，每次对话随请求发给小满服务器转发，服务器只在内存里使用，不写磁盘、不写日志。不要在别人的手机或公共电脑上填写 Key；用完可以在「设置 → 清除所有本地数据」里删除。
+模型 Key 和服务 Key 只保存在这台手机的浏览器里，每次对话随请求发给Daymark服务器转发，服务器只在内存里使用，不写磁盘、不写日志。不要在别人的手机或公共电脑上填写 Key；用完可以在「设置 → 清除所有本地数据」里删除。
 
 ## 课堂令牌
 
-没有方舟账号的学员可以用讲师发的课堂令牌（`xm-` 开头）。服务器开启后，「设置 → 模型设置」会出现「使用课堂令牌」：只填令牌，服务器用讲师的 Key 调用白名单里的模型（`XIAOMAN_CLASS_WEB_MODEL`，默认白名单第一个），和安卓 App 走 `/v1` 共用同一套记账、每日/总量上限和限流。令牌只存在浏览器本地（`xiaoman.model`），原来的「自带 Key」模式不变。
+没有方舟账号的学员可以用讲师发的课堂令牌（`xm-` 开头）。服务器开启后，「设置 → 模型设置」会出现「使用课堂令牌」：只填令牌，服务器用讲师的 Key 调用白名单里的模型（`XIAOMAN_CLASS_WEB_MODEL`，默认白名单第一个），和安卓 App 走 `/v1` 共用同一套记账、每日/总量上限和限流。令牌只存在浏览器本地（`daymark.model`），原来的「自带 Key」模式不变。
 
 服务端同时提供 OpenAI 兼容接口 `POST /v1/chat/completions`（支持 `stream` SSE、图片输入）和 `GET /v1/models`，用 `Authorization: Bearer <令牌>` 认证，给安卓 App 使用：Base URL 填 `https://<网址>/v1`，Key 填令牌，模型名填白名单名。
 
-开启方式（默认关闭）：配置 `XIAOMAN_CLASS_UPSTREAM_KEY_FILE`（或 `XIAOMAN_CLASS_UPSTREAM_KEY`）、`XIAOMAN_CLASS_MODELS`（如 `xiaoman-class=doubao-seed-1-6-250615`），可选 `XIAOMAN_CLASS_UPSTREAM_URL`（默认方舟北京），然后用 `web-server tokens generate N` 生成令牌文件（`--class-tokens` 或 `XIAOMAN_CLASS_TOKENS` 指定路径，默认 `/var/lib/xiaoman-web/class-tokens.json`）。令牌管理、课前课后操作见 [deploy/README.md](../deploy/README.md#课堂令牌讲师-key-兜底)。
+开启方式（默认关闭）：配置 `XIAOMAN_CLASS_UPSTREAM_KEY_FILE`（或 `XIAOMAN_CLASS_UPSTREAM_KEY`）、`XIAOMAN_CLASS_MODELS`（如 `daymark-class=doubao-seed-1-6-250615`），可选 `XIAOMAN_CLASS_UPSTREAM_URL`（默认方舟北京），然后用 `web-server tokens generate N` 生成令牌文件（`--class-tokens` 或 `XIAOMAN_CLASS_TOKENS` 指定路径，默认 `/var/lib/daymark-web/class-tokens.json`）。令牌管理、课前课后操作见 [deploy/README.md](../deploy/README.md#课堂令牌讲师-key-兜底)。
 
 学员也可以自助领取：讲师在 TRAE 论坛发领取帖并配置 `XIAOMAN_CLAIM_TOPIC_ID`、`XIAOMAN_CLAIM_EXPIRES` 后，学员打开 `/claim` 填论坛用户名，在帖子里回复页面给的验证短语，就能领到一份令牌（每个论坛账号一份，统一过期，默认最多 50 份、每份 100 万 token），领取页可以「一键用于本网页版」。讲师的课前步骤和管理命令见 [deploy/README.md](../deploy/README.md#自助领取按-trae-论坛账号每人一份)。
 
@@ -51,13 +51,13 @@ iPhone 不允许一个 App 操作其他 App，没有付费开发者账号也发�
 
 ```bash
 deploy/install.sh ubuntu@203.0.113.10 --sslip --install-deps        # 没有域名
-deploy/install.sh ubuntu@203.0.113.10 --domain xiaoman.example.com  # 自有域名
+deploy/install.sh ubuntu@203.0.113.10 --domain daymark.example.com  # 自有域名
 ```
 
 手动运行：
 
 ```bash
-./gradlew -Pxiaoman.iosOnly=true :web-server:installDist
+./gradlew -Pdaymark.iosOnly=true :web-server:installDist
 XIAOMAN_WEB_ACCESS_CODE=课堂口令 web-server/build/install/web-server/bin/web-server --host 127.0.0.1 --port 8787
 ```
 
@@ -78,10 +78,10 @@ XIAOMAN_WEB_ACCESS_CODE=课堂口令 web-server/build/install/web-server/bin/web
 
 ## 接口
 
-前端与服务器同源，接口定义在 `web-server/src/main/resources/web/app.js` 顶部注释里：`/api/info`（含 `classTokens`）、`/api/catalog`、`/api/session`、`/api/chat`（SSE 事件流，请求里带 `memory.notes`；课堂模式 `model` 为 `{classToken}`）、`/api/answer`、`/api/mcp/test`，以及领取页用的 `/api/claim/start`、`/api/claim/verify`（不需要访问码，有限流；定义见 `claim.js` 顶部）。服务器端的记忆格式见 `web-server/src/main/kotlin/dev/xiaoman/web/BrowserMemory.kt`。课堂令牌见 `ClassGateway.kt`（`/v1` 转发、限流、记账）、`ClassTokens.kt`（令牌文件）、`ClassTokenAdmin.kt`（`web-server tokens` 命令），自助领取见 `ForumClaims.kt`（论坛读取、验证短语、发放）。
+前端与服务器同源，接口定义在 `web-server/src/main/resources/web/app.js` 顶部注释里：`/api/info`（含 `classTokens`）、`/api/catalog`、`/api/session`、`/api/chat`（SSE 事件流，请求里带 `memory.notes`；课堂模式 `model` 为 `{classToken}`）、`/api/answer`、`/api/mcp/test`，以及领取页用的 `/api/claim/start`、`/api/claim/verify`（不需要访问码，有限流；定义见 `claim.js` 顶部）。服务器端的记忆格式见 `web-server/src/main/kotlin/dev/daymark/web/BrowserMemory.kt`。课堂令牌见 `ClassGateway.kt`（`/v1` 转发、限流、记账）、`ClassTokens.kt`（令牌文件）、`ClassTokenAdmin.kt`（`web-server tokens` 命令），自助领取见 `ForumClaims.kt`（论坛读取、验证短语、发放）。
 
 ## 测试
 
 ```bash
-./gradlew -Pxiaoman.iosOnly=true :web-server:test :web-server:jsTest   # Kotlin 接口测试 + 网页 JS 测试（需要 Node.js）
+./gradlew -Pdaymark.iosOnly=true :web-server:test :web-server:jsTest   # Kotlin 接口测试 + 网页 JS 测试（需要 Node.js）
 ```

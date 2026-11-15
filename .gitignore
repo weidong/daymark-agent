@@ -17,7 +17,7 @@ captures/
 Thumbs.db
 __pycache__/
 .DS_Store
-# xiaoman traces pull/show 的默认输出目录
+# daymark traces pull/show 的默认输出目录
 /traces/
 # 本地临时脚本与草稿
 /.tmp/

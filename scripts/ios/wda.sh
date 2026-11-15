@@ -13,11 +13,11 @@ usage() {
 环境变量：
   UDID              iPhone 标识；缺省选第一台已连接真机
   TEAM_ID           setup 必填，Xcode 中选择的开发团队 ID
-  WDA_BUNDLE_ID     签名 bundleId，默认 com.xiaoman.WebDriverAgentRunner；建议改成自己的唯一 ID
+  WDA_BUNDLE_ID     签名 bundleId，默认 com.daymark.WebDriverAgentRunner；建议改成自己的唯一 ID
   WDA_REF           固定 tag，默认 v16.15.3；可按 Xcode/iOS 兼容性调整
   WDA_PORT          本机转发端口，默认 8100（设备端始终为 8100）
   WDA_START_TIMEOUT 启动等待秒数，默认 120
-  XIAOMAN_IOS_HOME 状态根目录，默认 ~/.xiaoman-ios；所有状态在其 wda/ 下
+  XIAOMAN_IOS_HOME 状态根目录，默认 ~/.daymark-ios；所有状态在其 wda/ 下
 也可通过设备 Wi-Fi IP 连接：XIAOMAN_WDA_URL=http://<ip>:8100。
 脚本不处理 Apple ID 凭据；免费账号的签名通常需每 7 天重签。
 EOF
@@ -25,7 +25,7 @@ EOF
 case "${1:-}" in ''|--help|-h|help) usage; exit 0 ;; setup|start|forward|url|status|stop) action="$1" ;; *) usage >&2; exit 2 ;; esac
 [[ $# -eq 1 ]] || { usage >&2; exit 2; }
 [[ "$(uname -s)" == Darwin ]] || { echo '此脚本的运行命令需要 macOS；--help 可在其他系统查看。' >&2; exit 1; }
-state="${XIAOMAN_IOS_HOME:-$HOME/.xiaoman-ios}/wda"
+state="${XIAOMAN_IOS_HOME:-$HOME/.daymark-ios}/wda"
 source_dir="$state/WebDriverAgent"
 port="${WDA_PORT:-8100}"
 [[ "$port" =~ ^[0-9]+$ && ${#port} -le 5 ]] && (( 10#$port >= 1 && 10#$port <= 65535 )) || { echo 'WDA_PORT 必须是 1..65535。' >&2; exit 2; }
@@ -104,7 +104,7 @@ case "$action" in
     xcode_args
     echo '构建会请求 Xcode 使用已登录的 Apple ID 签名；脚本不读取账号凭据。'
     xcodebuild build-for-testing "${build_args[@]}" -allowProvisioningUpdates \
-      "DEVELOPMENT_TEAM=$TEAM_ID" "PRODUCT_BUNDLE_IDENTIFIER=${WDA_BUNDLE_ID:-com.xiaoman.WebDriverAgentRunner}"
+      "DEVELOPMENT_TEAM=$TEAM_ID" "PRODUCT_BUNDLE_IDENTIFIER=${WDA_BUNDLE_ID:-com.daymark.WebDriverAgentRunner}"
     printf '%s\n' "$UDID" > "$state/built-udid"
     echo '构建完成。请在 iPhone 信任开发者证书，然后执行 start。'
     ;;

@@ -1,6 +1,6 @@
-# 在 Mac 上使用小满操作 iPhone
+# 在 Mac 上使用Daymark操作 iPhone
 
-iOS 限制 App 读取和操作其他 App 的界面，因此无法像 Android 那样，在 iPhone 上装一个小满 App 就直接操作淘宝、设置等应用。本方案需要一台 Mac，通过 Apple 的 UI 测试工具控制你自己的 iPhone。
+iOS 限制 App 读取和操作其他 App 的界面，因此无法像 Android 那样，在 iPhone 上装一个Daymark App 就直接操作淘宝、设置等应用。本方案需要一台 Mac，通过 Apple 的 UI 测试工具控制你自己的 iPhone。
 
 Mac 上的 JVM 命令行 `ios-runner` 负责聊天、模型请求、记忆、技能、安全确认和 Agent 操作循环，复用 `core-*` 模块。`ios-hands` 把点击、输入、截图等请求交给 iPhone 上的 WebDriverAgent（下文简称 WDA）。WDA 是 Appium 维护的 XCTest UI 测试 runner，由 Xcode 构建、签名并在手机上运行。
 
@@ -54,7 +54,7 @@ bash scripts/ios/doctor.sh check
 
 ```bash
 export TEAM_ID="你的TeamID"
-export WDA_BUNDLE_ID="com.yourname.xiaoman.WebDriverAgentRunner"
+export WDA_BUNDLE_ID="com.yourname.daymark.WebDriverAgentRunner"
 # 多台设备连接时，请从 doctor 的设备列表复制目标设备 UDID：
 # export UDID="设备UDID"
 bash scripts/ios/wda.sh setup
@@ -62,7 +62,7 @@ bash scripts/ios/wda.sh setup
 
 未设置 `UDID` 时，脚本从 `xcrun xctrace list devices` 选择第一台已连接真机，排除模拟器和 Mac 本机。多设备场景请明确指定。
 
-`setup` 从 `https://github.com/appium/WebDriverAgent` 下载固定 tag（默认 `v16.15.3`），通过 `xcodebuild build-for-testing` 构建 WebDriverAgentRunner，并允许 Xcode 更新签名配置。可以设置 `WDA_REF` 使用与你的 Xcode/iOS 兼容的 tag。所有脚本管理的源码、构建产物、临时文件、日志、虚拟环境和 PID 都在 `${XIAOMAN_IOS_HOME:-$HOME/.xiaoman-ios}/wda/` 下。更换设备或签名、签名过期后，先 `stop` 再重新 `setup`。
+`setup` 从 `https://github.com/appium/WebDriverAgent` 下载固定 tag（默认 `v16.15.3`），通过 `xcodebuild build-for-testing` 构建 WebDriverAgentRunner，并允许 Xcode 更新签名配置。可以设置 `WDA_REF` 使用与你的 Xcode/iOS 兼容的 tag。所有脚本管理的源码、构建产物、临时文件、日志、虚拟环境和 PID 都在 `${XIAOMAN_IOS_HOME:-$HOME/.daymark-ios}/wda/` 下。更换设备或签名、签名过期后，先 `stop` 再重新 `setup`。
 
 ### 3. 在手机信任开发者证书
 
@@ -111,7 +111,7 @@ Mac 仍然必不可少：iPhone 上的 WDA 是由 Mac 上的 `xcodebuild` 拉起
 | 配置 | 默认值 / 用途 |
 |---|---|
 | `XIAOMAN_WDA_URL` | `http://127.0.0.1:8100`，WDA 连接地址 |
-| `XIAOMAN_HOME` | `~/.xiaoman-ios`，保存 `memory/`、`skills/`、`traces/` |
+| `XIAOMAN_HOME` | `~/.daymark-ios`，保存 `memory/`、`skills/`、`traces/` |
 | `$XIAOMAN_HOME/config.properties` | 模型 Base URL 和名称，不保存 API Key |
 | `XIAOMAN_CHAT_API_KEY` | 聊天模型 Key；未设置时回退到 `ARK_API_KEY` |
 | `XIAOMAN_OPERATOR_API_KEY` | 操作模型 Key；未设置时回退到 `ARK_API_KEY` |
@@ -121,7 +121,7 @@ Mac 仍然必不可少：iPhone 上的 WDA 是由 Mac 上的 `xcodebuild` 拉起
 创建模型配置与复制技能的示例：
 
 ```bash
-export XIAOMAN_HOME="${XIAOMAN_HOME:-$HOME/.xiaoman-ios}"
+export XIAOMAN_HOME="${XIAOMAN_HOME:-$HOME/.daymark-ios}"
 mkdir -p "$XIAOMAN_HOME/skills"
 cat > "$XIAOMAN_HOME/config.properties" <<'EOF'
 chat.baseUrl=https://ark.cn-beijing.volces.com/api/v3
@@ -145,10 +145,10 @@ export ARK_API_KEY
 
 ### 6. 检查 runner 并跑一个只读任务
 
-先在仓库根目录构建 runner（需要 JDK 17，第一次构建要联网下载依赖；`-Pxiaoman.iosOnly=true` 跳过 Android 模块，Mac 上不用装 Android SDK），并把它加到 PATH：
+先在仓库根目录构建 runner（需要 JDK 17，第一次构建要联网下载依赖；`-Pdaymark.iosOnly=true` 跳过 Android 模块，Mac 上不用装 Android SDK），并把它加到 PATH：
 
 ```bash
-./gradlew -Pxiaoman.iosOnly=true :ios-runner:installDist
+./gradlew -Pdaymark.iosOnly=true :ios-runner:installDist
 export PATH="$PWD/ios-runner/build/install/ios-runner/bin:$PATH"
 ```
 
