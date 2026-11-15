@@ -60,7 +60,7 @@ class McpConfig(val servers: List<McpServerConfig> = emptyList(), val warnings: 
                 val secrets = mutableSetOf<String>()
                 fun substitute(element: JsonElement): JsonElement = when (element) {
                     is JsonPrimitive -> if (!element.isString) element else JsonPrimitive(
-                        Regex("\\$\\{([A-Za-z_][A-Za-z0-9_]*)}").replace(element.content) { match ->
+                        Regex("\\$\\{([A-Za-z_][A-Za-z0-9_]*)\\}").replace(element.content) { match ->
                             val variable = match.groupValues[1]
                             env[variable]?.also { secrets += it } ?: run { missing += variable; "" }
                         }
