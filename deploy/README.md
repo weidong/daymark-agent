@@ -1,4 +1,4 @@
-# 部署Daymark网页版
+# 部署DayMark网页版
 
 把 `web-server` 装到一台有公网 IP 的 Linux 云服务器上，Caddy 负责 HTTPS，学员用 iPhone 的 Safari 打开网址、添加到主屏幕。
 
@@ -142,7 +142,7 @@ deploy/install.sh ubuntu@203.0.113.10 --sslip --class-off   # 可选：彻底关
 
 ### 自助领取（按 TRAE 论坛账号，每人一份）
 
-不想逐个私发令牌时，可以让学员自己领：打开 `https://<网址>/claim`（不需要访问码），填 TRAE 论坛用户名 → 页面给出一句一次性验证短语（如「领取Daymark令牌 K7Q3M2」，10 分钟有效）→ 学员用这个账号在领取帖里回复这句话 → 点「我已回复」，服务器只读论坛公开接口找到这条回复后当场生成令牌，显示一次。同一论坛账号（按论坛用户 ID 认，用户名大小写不敏感）只能领一份；被作废的不会补发。领取页还给出安卓填写方法，并能「一键用于本网页版」（写入网页版的课堂令牌模式）。
+不想逐个私发令牌时，可以让学员自己领：打开 `https://<网址>/claim`（不需要访问码），填 TRAE 论坛用户名 → 页面给出一句一次性验证短语（如「领取DayMark令牌 K7Q3M2」，10 分钟有效）→ 学员用这个账号在领取帖里回复这句话 → 点「我已回复」，服务器只读论坛公开接口找到这条回复后当场生成令牌，显示一次。同一论坛账号（按论坛用户 ID 认，用户名大小写不敏感）只能领一份；被作废的不会补发。领取页还给出安卓填写方法，并能「一键用于本网页版」（写入网页版的课堂令牌模式）。
 
 需要先开启上面的课堂令牌。课前步骤：
 
@@ -202,7 +202,7 @@ deploy/rollback.sh ubuntu@203.0.113.10 20261105-221500
 sudo systemctl status daymark-web
 sudo journalctl -u daymark-web -f          # web-server：只记录接口名、状态码和耗时，不含消息、Key 和记忆
 sudo journalctl -u caddy -n 100 --no-pager # 证书申请、反向代理错误
-curl -s https://<网址>/api/info            # {"name":"Daymark","version":...,"stdioMcp":...}
+curl -s https://<网址>/api/info            # {"name":"DayMark","version":...,"stdioMcp":...}
 ```
 
 启动日志里有一行说明 12306 是否开启。
@@ -223,4 +223,4 @@ curl -s https://<网址>/api/info            # {"name":"Daymark","version":...,"
 - Key 经服务器转发但不落盘：学员的模型 Key 和服务 Key 保存在各自浏览器里，每次对话随请求发给服务器，服务器只在内存里用来调用模型和 MCP，不写磁盘、不写日志；返回给网页的内容会把这些 Key 替换成 `***`。服务器管理员理论上能在内存里看到它们，所以请用自己控制的服务器，并提醒学员用额度有限的 Key、课后可在平台上删除。
 - 记忆不在服务器：学员的长期记忆存在各自浏览器的 localStorage 里，每次对话带给服务器、只在这一轮使用。服务器重启或会话过期都不会丢，也不会留在服务器上。
 - 不访问内网：模型地址和 MCP 地址解析到 127.0.0.1、10.x、192.168.x、169.254.x 等都会被拒绝，学员不能借服务器探测云上内网。不要在生产环境加 `--allow-private`。
-- Caddy 默认不记访问日志。如果要开，按 `Caddyfile.template` 里的注释过滤掉 `X-Daymark-Access`、`Authorization` 请求头。
+- Caddy 默认不记访问日志。如果要开，按 `Caddyfile.template` 里的注释过滤掉 `X-DayMark-Access`、`Authorization` 请求头。

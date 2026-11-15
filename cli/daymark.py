@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daymark developer CLI. Run `python3 daymark.py --help`."""
+"""DayMark developer CLI. Run `python3 daymark.py --help`."""
 
 import os
 import sys

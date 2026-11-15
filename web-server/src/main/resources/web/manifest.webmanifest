@@ -1,8 +1,8 @@
 {
-  "name": "Daymark",
-  "short_name": "Daymark",
+  "name": "DayMark",
+  "short_name": "DayMark",
   "lang": "zh-CN",
-  "description": "Daymark：你的随身小助手",
+  "description": "DayMark：你的随身小助手",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

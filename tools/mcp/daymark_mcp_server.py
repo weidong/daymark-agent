@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daymark MCP server: 把飞书工作记录能力暴露成 MCP 工具（Streamable HTTP）。"""
+"""DayMark MCP server: 把飞书工作记录能力暴露成 MCP 工具（Streamable HTTP）。"""
 import contextlib
 import datetime as dt
 import io
@@ -222,7 +222,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     port = int(os.environ.get("DAYMARK_MCP_PORT", DEFAULT_PORT))
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
-    print(f"Daymark MCP server 已启动: http://0.0.0.0:{port}/mcp")
+    print(f"DayMark MCP server 已启动: http://0.0.0.0:{port}/mcp")
     print(f"模拟器访问地址示例: http://10.0.2.2:{port}/mcp")
     server.serve_forever()
 

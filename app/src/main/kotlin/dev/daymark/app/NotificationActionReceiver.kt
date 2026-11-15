@@ -6,7 +6,7 @@ import android.content.Intent
 import com.daymark.api.ApprovalAnswer
 import com.daymark.api.ApprovalScope
 
-/** Not exported: receives only the PendingIntents of Daymark's own notifications. */
+/** Not exported: receives only the PendingIntents of DayMark's own notifications. */
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val session = (context.applicationContext as DaymarkApp).graph.session

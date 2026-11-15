@@ -9,11 +9,11 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="claim.css">
-  <title>领取Daymark课堂令牌</title>
+  <title>领取DayMark课堂令牌</title>
   <script src="claim.js" defer></script>
 </head>
 <body class="claim-body">
-  <header class="app-header"><div class="brand"><img src="icon.svg" width="36" height="36" alt=""><div><strong>Daymark</strong><span>领取课堂令牌</span></div></div></header>
+  <header class="app-header"><div class="brand"><img src="icon.svg" width="36" height="36" alt=""><div><strong>DayMark</strong><span>领取课堂令牌</span></div></div></header>
   <main class="claim-main">
     <div id="claim-notice" class="claim-notice" role="alert" hidden></div>
 
@@ -22,12 +22,12 @@
     <section id="step-closed" class="panel" hidden>
       <h1 id="closed-title">暂时不能领取</h1>
       <p id="closed-text"></p>
-      <p><a href="/">打开Daymark网页版</a></p>
+      <p><a href="/">打开DayMark网页版</a></p>
     </section>
 
     <section id="step-name" class="panel" hidden>
       <h1>领取课堂令牌</h1>
-      <p>每个 TRAE 论坛账号可以领一份，用来在Daymark安卓版或网页版里使用讲师提供的模型。</p>
+      <p>每个 TRAE 论坛账号可以领一份，用来在DayMark安卓版或网页版里使用讲师提供的模型。</p>
       <ul class="claim-facts">
         <li>额度：<strong id="fact-total"></strong> token</li>
         <li>有效期至：<strong id="fact-expires"></strong></li>
@@ -63,7 +63,7 @@
       </ul>
       <h2>在本网页版使用</h2>
       <button id="use-here" type="button" class="primary">一键用于本网页版</button>
-      <h2>在Daymark安卓版使用</h2>
+      <h2>在DayMark安卓版使用</h2>
       <p class="muted">设置 → 模型，填写：</p>
       <dl class="android-fields">
         <dt>Base URL</dt><dd><code id="android-url"></code> <button type="button" class="small" data-copy="android-url">复制</button></dd>

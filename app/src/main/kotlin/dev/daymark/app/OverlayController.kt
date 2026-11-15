@@ -44,7 +44,7 @@ class OverlayController(
                     }
                     owner = service
                 }
-                overlay?.update(status ?: "Daymark")
+                overlay?.update(status ?: "DayMark")
             }
     }
 

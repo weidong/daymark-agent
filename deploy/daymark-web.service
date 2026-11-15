@@ -1,7 +1,7 @@
-# systemd unit for the Daymark web server. install.sh copies it to /etc/systemd/system/daymark-web.service.
+# systemd unit for the DayMark web server. install.sh copies it to /etc/systemd/system/daymark-web.service.
 # Settings (access code, timezone, JVM memory) live in /etc/daymark-web/env, readable by root and the service only.
 [Unit]
-Description=Daymark网页版 (daymark web-server)
+Description=DayMark网页版 (daymark web-server)
 After=network-online.target
 Wants=network-online.target
 

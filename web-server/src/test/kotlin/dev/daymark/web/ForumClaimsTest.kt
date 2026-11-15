@@ -167,7 +167,7 @@ class ForumClaimsTest {
                 val started = startClaim(s, "@alice")
                 assertEquals(200, started.code, started.text)
                 val phrase = started.json.str("phrase")
-                assertTrue(phrase.matches(Regex("领取Daymark令牌 [2-9A-Z]{6}")), phrase)
+                assertTrue(phrase.matches(Regex("领取DayMark令牌 [2-9A-Z]{6}")), phrase)
                 assertEquals("Alice", started.json.str("username"), "the forum's spelling is used")
                 assertEquals("${forum.url}/t/42", started.json.str("topicUrl"))
                 assertEquals(600, started.json["expiresInSeconds"]!!.jsonPrimitive.int)
@@ -175,7 +175,7 @@ class ForumClaimsTest {
 
                 // Typed on a phone: extra spaces, full-width letters, lower case, inside other text.
                 val code = phrase.substringAfter(' ')
-                val typed = "领取 Daymark令牌　" + code.lowercase().map { if (it.isLetter()) (it.code - 'a'.code + 'ａ'.code).toChar() else it }.joinToString("")
+                val typed = "领取 DayMark令牌　" + code.lowercase().map { if (it.isLetter()) (it.code - 'a'.code + 'ａ'.code).toChar() else it }.joinToString("")
                 forum.reply(alice, "收到！$typed")
                 val done = verify(s, started.json.str("challengeId"))
                 assertEquals(200, done.code, done.text)
@@ -215,7 +215,7 @@ class ForumClaimsTest {
             server(claimConfig(forum.url)).use { s ->
                 val started = startClaim(s, "alice"); val id = started.json.str("challengeId")
                 assertEquals("reply_not_found", verify(s, id).errorCode)
-                forum.reply(alice, "领取Daymark令牌 AAAAAA")
+                forum.reply(alice, "领取DayMark令牌 AAAAAA")
                 assertEquals("reply_not_found", verify(s, id).also { assertEquals(404, it.code) }.errorCode)
                 // Bob posts Alice's phrase: found, but by the wrong account.
                 forum.reply(bob, started.json.str("phrase"))

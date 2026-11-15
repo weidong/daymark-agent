@@ -8,7 +8,7 @@ import java.util.TimeZone
 fun main(args: Array<String>) {
     if (args.firstOrNull() == "tokens") kotlin.system.exitProcess(ClassTokenAdmin.run(args.drop(1)))
     if ("--help" in args) {
-        println("""Daymark网页版后端
+        println("""DayMark网页版后端
 用法：web-server [--host 127.0.0.1] [--port 8787] [--static DIR]
   [--access-code CODE] [--allow-private] [--timezone Asia/Shanghai] [--session-hours 2]
   [--skills DIR] [--stdio-mcp auto|on|off] [--max-stdio 20] [--class-tokens FILE] [--local [--no-browser]]
@@ -78,7 +78,7 @@ fun main(args: Array<String>) {
         TimeZone.setDefault(TimeZone.getTimeZone(options.timezone))
         val server = if (local) LocalLaunch.start(options) else WebServer(options).start()
         Runtime.getRuntime().addShutdownHook(Thread { server.close() })
-        println("Daymark已监听 http://${options.host}:${server.port}")
+        println("DayMark已监听 http://${options.host}:${server.port}")
         println(when {
             options.stdioMcp && !nodeFound -> "12306 火车票（stdio）：已强制开启，但 PATH 里没有 node/npx，调用会失败"
             options.stdioMcp -> "12306 火车票（stdio）：已开启，最多 ${options.maxStdioProcesses} 个进程"

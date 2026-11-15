@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 data class ForegroundApp(val packageName: String, val activityName: String?)
 
 /**
- * Daymark's hands and eyes. Enabled by the user in system Settings → Accessibility.
+ * DayMark's hands and eyes. Enabled by the user in system Settings → Accessibility.
  * [AccessibilityDevice] does the actual work; this class only exposes the connected instance
  * and tracks the foreground activity.
  */

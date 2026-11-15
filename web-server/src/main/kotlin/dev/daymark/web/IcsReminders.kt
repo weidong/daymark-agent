@@ -20,7 +20,7 @@ class IcsReminders(private val channels: WebChannels, private val timezone: Zone
         fun calendar(text: String, atMillis: Long, nowMillis: Long): String {
             val summary = text.replace("\\", "\\\\").replace("\r\n", "\n").replace("\r", "\n")
                 .replace("\n", "\\n").replace(",", "\\,").replace(";", "\\;")
-            val lines = listOf("BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Daymark//Web//ZH", "CALSCALE:GREGORIAN",
+            val lines = listOf("BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//DayMark//Web//ZH", "CALSCALE:GREGORIAN",
                 "BEGIN:VEVENT", "UID:${UUID.randomUUID()}@daymark", "DTSTAMP:${utc.format(Instant.ofEpochMilli(nowMillis))}",
                 "DTSTART:${utc.format(Instant.ofEpochMilli(atMillis))}", "SUMMARY:$summary", "BEGIN:VALARM", "TRIGGER:PT0M",
                 "ACTION:DISPLAY", "DESCRIPTION:$summary", "END:VALARM", "END:VEVENT", "END:VCALENDAR")

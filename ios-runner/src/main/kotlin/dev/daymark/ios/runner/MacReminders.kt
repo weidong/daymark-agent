@@ -36,7 +36,7 @@ class MacReminders(
         /** Shows a notification on macOS; the text is passed as an argument, never spliced into a script. */
         fun macNotification(text: String) {
             if (!System.getProperty("os.name").orEmpty().contains("Mac") || !File(OSASCRIPT).canExecute()) return
-            ProcessBuilder(OSASCRIPT, "-e", "on run argv", "-e", "display notification (item 1 of argv) with title \"Daymark\"",
+            ProcessBuilder(OSASCRIPT, "-e", "on run argv", "-e", "display notification (item 1 of argv) with title \"DayMark\"",
                 "-e", "end run", text)
                 .redirectErrorStream(true)
                 .redirectOutput(ProcessBuilder.Redirect.DISCARD)

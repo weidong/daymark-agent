@@ -384,7 +384,7 @@ class AccessibilityDevice(
 
     companion object {
         const val NOT_CONNECTED = "无障碍服务未开启"
-        private const val TAG = "Daymark"
+        private const val TAG = "DayMark"
         private const val SCREENSHOT_INTERVAL_MS = 1050L
         private const val SCREENSHOT_ATTEMPTS = 3
         private const val TAP_MS = 60L

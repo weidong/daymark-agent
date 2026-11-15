@@ -5,7 +5,7 @@ import android.net.Uri
 import android.provider.AlarmClock
 
 /**
- * Links that Daymark itself turns into system intents, so a skill can reach a stable system entry
+ * Links that DayMark itself turns into system intents, so a skill can reach a stable system entry
  * point through the ordinary `deeplink` action (and its Sentinel check) instead of fiddly screens.
  *
  * `daymark://alarm/set?hour=14&minute=0&label=喝水` opens the clock's new-alarm page prefilled
@@ -15,12 +15,12 @@ internal object AppLinks {
     const val SCHEME = "daymark"
     private const val MAX_LABEL = 60
 
-    /** The intent for [uri]; null when it is not a Daymark link. Throws [IllegalArgumentException] for a malformed one. */
+    /** The intent for [uri]; null when it is not a DayMark link. Throws [IllegalArgumentException] for a malformed one. */
     fun intentFor(uri: Uri): Intent? {
         if (uri.scheme?.lowercase() != SCHEME) return null
         return when ("${uri.host.orEmpty()}${uri.path.orEmpty()}".trimEnd('/')) {
             "alarm/set" -> setAlarm(uri)
-            else -> throw IllegalArgumentException("不支持的Daymark链接：$uri（目前只支持 daymark://alarm/set）")
+            else -> throw IllegalArgumentException("不支持的DayMark链接：$uri（目前只支持 daymark://alarm/set）")
         }
     }
 

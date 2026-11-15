@@ -135,17 +135,17 @@ class CommandTest(unittest.TestCase):
     def test_run_follow(self):
         lines = [
             "--------- beginning of main\n",
-            "10-31 12:00:00.000  1  1 I Daymark: old StepPlanned {\"step\": 9}\n",
-            "10-31 12:00:01.000  1  1 I Daymark: r9 PhoneTaskStarted {\"goal\": \"打开设置\"}\n",
-            "10-31 12:00:02.000  1  1 I Daymark: r9 StepPlanned {\"step\": 0, \"action\": {\"type\": \"home\"}}\n",
-            "10-31 12:00:03.000  1  1 I Daymark: r9 PhoneTaskFinished {\"success\": true, \"summary\": \"ok\"}\n",
-            "10-31 12:00:04.000  1  1 I Daymark: r9 StepPlanned {\"step\": 99}\n",
+            "10-31 12:00:00.000  1  1 I DayMark: old StepPlanned {\"step\": 9}\n",
+            "10-31 12:00:01.000  1  1 I DayMark: r9 PhoneTaskStarted {\"goal\": \"打开设置\"}\n",
+            "10-31 12:00:02.000  1  1 I DayMark: r9 StepPlanned {\"step\": 0, \"action\": {\"type\": \"home\"}}\n",
+            "10-31 12:00:03.000  1  1 I DayMark: r9 PhoneTaskFinished {\"success\": true, \"summary\": \"ok\"}\n",
+            "10-31 12:00:04.000  1  1 I DayMark: r9 StepPlanned {\"step\": 99}\n",
         ]
         fake = FakeAdb(lines)
         code, out, _ = fake.run_main(["run", "打开设置", "--run-id", "r9", "--follow"])
         self.assertEqual(code, 0)
         # logcat is spawned before the broadcast
-        self.assertEqual(fake.calls[0], ("spawn", ["adb", "logcat", "-v", "threadtime", "-s", "Daymark"]))
+        self.assertEqual(fake.calls[0], ("spawn", ["adb", "logcat", "-v", "threadtime", "-s", "DayMark"]))
         self.assertEqual(fake.calls[1][0], "run")
         shown = out.strip().splitlines()
         self.assertEqual(len(shown), 3)
@@ -154,7 +154,7 @@ class CommandTest(unittest.TestCase):
         self.assertTrue(fake.procs[0].terminated)
 
     def test_run_follow_failure_exit_code(self):
-        fake = FakeAdb(["I Daymark: r9 Failed {\"message\": \"x\"}\n"])
+        fake = FakeAdb(["I DayMark: r9 Failed {\"message\": \"x\"}\n"])
         code, _, _ = fake.run_main(["run", "g", "--run-id", "r9", "-f"])
         self.assertEqual(code, 1)
         fake = FakeAdb([])
@@ -191,9 +191,9 @@ class CommandTest(unittest.TestCase):
 
     def test_logs(self):
         lines = [
-            "I Daymark: r1 StepPlanned {\"step\": 1}\n",
-            "I Daymark: r2 StepPlanned {\"step\": 2}\n",
-            "I Daymark: skills reloaded: 1 problem\n",
+            "I DayMark: r1 StepPlanned {\"step\": 1}\n",
+            "I DayMark: r2 StepPlanned {\"step\": 2}\n",
+            "I DayMark: skills reloaded: 1 problem\n",
         ]
         code, out, _ = FakeAdb(lines).run_main(["logs"])
         self.assertEqual(code, 0)

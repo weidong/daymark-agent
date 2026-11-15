@@ -25,8 +25,8 @@ class WebServerTest {
         body: String? = null): HttpURLConnection {
         val c = URL("http://127.0.0.1:${server.port}$path").openConnection() as HttpURLConnection
         c.connectTimeout = 3000; c.readTimeout = 5000
-        session?.let { c.setRequestProperty("X-Daymark-Session", it) }
-        code?.let { c.setRequestProperty("X-Daymark-Access", it) }
+        session?.let { c.setRequestProperty("X-DayMark-Session", it) }
+        code?.let { c.setRequestProperty("X-DayMark-Access", it) }
         if (body != null) {
             c.requestMethod = "POST"; c.doOutput = true; c.setRequestProperty("Content-Type", "application/json")
             c.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
@@ -120,7 +120,7 @@ class WebServerTest {
             assertTrue(catalog.filter { it.jsonObject.str("id") in web }.all { it.jsonObject["available"]!!.jsonPrimitive.boolean })
             assertTrue(catalog.all { "url" !in it.jsonObject && "entry" !in it.jsonObject })
             val sid = create(s); assertEquals(22, sid.length); assertTrue(sid.matches(Regex("[A-Za-z0-9_-]+")))
-            assertEquals("Daymark", request(s, "/api/info").json.str("name"))
+            assertEquals("DayMark", request(s, "/api/info").json.str("name"))
             assertEquals(404, request(s, "/api/chat", "missing", body = chatBody()).code)
         }
     }
@@ -243,10 +243,10 @@ class WebServerTest {
     @Test fun staticRootServesIndexHeadersAndRejectsTraversal() {
         val root = Files.createTempDirectory("daymark-web-test")
         try {
-            Files.writeString(root.resolve("index.html"), "<html>Daymark</html>")
+            Files.writeString(root.resolve("index.html"), "<html>DayMark</html>")
             WebServer(options().copy(staticRoot = root), scripted, logger = {}).start().use { s ->
                 val r = request(s, "/")
-                assertEquals(200, r.code); assertEquals("<html>Daymark</html>", r.text)
+                assertEquals(200, r.code); assertEquals("<html>DayMark</html>", r.text)
                 assertEquals(listOf("nosniff"), r.headers.entries.first { it.key.equals("X-content-type-options", true) }.value)
                 assertTrue(r.headers.entries.first { it.key.equals("Content-security-policy", true) }.value.single().contains("connect-src 'self'"))
                 assertEquals(400, request(s, "/%2e%2e/index.html").code)

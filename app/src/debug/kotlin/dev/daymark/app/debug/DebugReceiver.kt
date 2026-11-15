@@ -55,6 +55,6 @@ class DebugReceiver : BroadcastReceiver() {
     }
 
     private companion object {
-        const val TAG = "Daymark"
+        const val TAG = "DayMark"
     }
 }

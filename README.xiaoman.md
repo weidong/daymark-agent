@@ -1,6 +1,6 @@
-# Daymark
+# DayMark
 
-Daymark 是一个面向个人工作记录的 Android Agent。
+DayMark 是一个面向个人工作记录的 Android Agent。
 
 每天说一句“开工”，它在飞书里创建当天日志；做完一件事说“完成……”，它把这条追加到当天。月末、季末、年末，它根据平时的短记录生成复盘草稿，由人确认后定稿。
 
@@ -8,7 +8,7 @@ Daymark 是一个面向个人工作记录的 Android Agent。
 
 ## 与 xiaoman 的关系
 
-Daymark 的 Android Agent 基础框架来自开源项目 [xiaoman](https://github.com/aduoge/xiaoman)（MIT License）。我们保留它的分层结构，替换名称与包名，并新增飞书记录能力和周期复盘技能。
+DayMark 的 Android Agent 基础框架来自开源项目 [xiaoman](https://github.com/aduoge/xiaoman)（MIT License）。我们保留它的分层结构，替换名称与包名，并新增飞书记录能力和周期复盘技能。
 
 原始项目说明见 [README.xiaoman.md](README.xiaoman.md)。
 
