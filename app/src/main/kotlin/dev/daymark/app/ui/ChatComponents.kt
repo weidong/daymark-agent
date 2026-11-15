@@ -47,9 +47,9 @@ internal fun ChatWelcome(onExample: (String) -> Unit) {
         Text("今天想做点什么？", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
         Text("说一句，我来帮你动手。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(16.dp))
-        Example(Icons.Outlined.ShoppingBag, "选一本笔记本", "20元以内，先给我确认", "帮我在淘宝挑一本20元以内的A5笔记本，选好后给我确认。", onExample)
-        Example(Icons.Outlined.Schedule, "提醒我喝水", "10分钟后提醒", "10分钟后提醒我喝水。", onExample)
-        Example(Icons.Outlined.Lightbulb, "记住我的偏好", "让助手慢慢懂你", "记住我买东西喜欢简单实用。", onExample)
+        Example(Icons.Outlined.WbSunny, "开工", "建今天的日志，写一条开工", "开工", onExample)
+        Example(Icons.Outlined.EditNote, "记录一条", "说完就写进当天日志", "记录：", onExample)
+        Example(Icons.Outlined.History, "今天记了什么", "回读当天全部条目", "今天记录了什么", onExample)
         Text("也可以直接输入你的想法", modifier = Modifier.padding(top = 8.dp),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
