@@ -220,36 +220,95 @@ def ensure_heading(doc, level, text, parent_block, parent_level):
     return found
 
 
-def ensure_today(doc, day):
+def section_span(doc, blocks, parent_block):
+    """返回父标题区域在页面 children 中的 [start, end)。"""
+    page = doc.page(blocks)
+    children = page.get("children", [])
+    by_id = {b["block_id"]: b for b in blocks}
+    start = children.index(parent_block["block_id"]) + 1
+    parent_level = heading_level(parent_block)
+    end = start
+    while end < len(children):
+        lv = heading_level(by_id.get(children[end], {}))
+        if lv and lv <= parent_level:
+            break
+        end += 1
+    return children, by_id, start, end
+
+
+def find_in_section(doc, blocks, parent_block, level, text):
+    children, by_id, start, end = section_span(doc, blocks, parent_block)
+    for i in range(start, end):
+        b = by_id.get(children[i], {})
+        if heading_level(b) == level and block_text(b).strip() == text:
+            return b
+    return None
+
+
+def insert_at_section_top(doc, blocks, parent_block, child_level, new_children, skip_keywords=()):
+    """插到区域最前面；跳过速览、总结这类应固定在上方的同级标题。"""
+    children, by_id, start, end = section_span(doc, blocks, parent_block)
+    pos = start
+    while pos < end:
+        b = by_id.get(children[pos], {})
+        lv = heading_level(b)
+        text = block_text(b).strip()
+        if lv == child_level and any(k in text for k in skip_keywords):
+            pos += 1
+            while pos < end:
+                nlv = heading_level(by_id.get(children[pos], {}))
+                if nlv and nlv <= child_level:
+                    break
+                pos += 1
+            continue
+        break
+    doc.insert(pos, new_children)
+    return pos
+
+
+def locate_chain(doc, day):
+    """按 板块 → 季度 → 月份 → 周 → 日期 依次定位，缺失的返回 None。"""
     titles = period_titles(day)
     blocks = doc.blocks()
-    log_h1 = find_heading(blocks, 1, "📅 行知日志")
+    h1 = find_heading(blocks, 1, "📅 行知日志")
+    quarter = find_in_section(doc, blocks, h1, 2, titles["quarter"]) if h1 else None
+    month = find_in_section(doc, blocks, quarter, 3, titles["month"]) if quarter else None
+    week = find_in_section(doc, blocks, month, 4, titles["week"]) if month else None
+    date_block = find_in_section(doc, blocks, week, 5, titles["date"]) if week else None
+    return blocks, h1, quarter, month, week, date_block, titles
+
+
+def ensure_today(doc, day):
+    """按倒序补齐层级：越新的周和日期越靠上。"""
+    blocks, log_h1, quarter, month, week, date_block, titles = locate_chain(doc, day)
     if not log_h1:
         raise RuntimeError("未找到「📅 行知日志」板块")
 
-    quarter = find_heading(blocks, 2, titles["quarter"])
     if not quarter:
-        insert_after_section(doc, blocks, log_h1, 1, [make_heading(2, titles["quarter"])])
-        blocks = doc.blocks()
-        quarter = find_heading(blocks, 2, titles["quarter"])
+        insert_at_section_top(doc, blocks, log_h1, 2, [make_heading(2, titles["quarter"])])
+        blocks, log_h1, quarter, month, week, date_block, titles = locate_chain(doc, day)
+        if not quarter:
+            raise RuntimeError(f"创建季度标题失败: {titles['quarter']}")
 
-    month = find_heading(blocks, 3, titles["month"])
     if not month:
-        insert_after_section(doc, blocks, quarter, 2, [make_heading(3, titles["month"])])
-        blocks = doc.blocks()
-        month = find_heading(blocks, 3, titles["month"])
+        insert_at_section_top(doc, blocks, quarter, 3, [make_heading(3, titles["month"])],
+                              skip_keywords=("总结",))
+        blocks, log_h1, quarter, month, week, date_block, titles = locate_chain(doc, day)
+        if not month:
+            raise RuntimeError(f"创建月份标题失败: {titles['month']}")
 
-    week = find_heading(blocks, 4, titles["week"])
     if not week:
-        insert_after_section(doc, blocks, month, 3, [make_heading(4, titles["week"])])
-        blocks = doc.blocks()
-        week = find_heading(blocks, 4, titles["week"])
+        insert_at_section_top(doc, blocks, month, 4, [make_heading(4, titles["week"])],
+                              skip_keywords=("速览",))
+        blocks, log_h1, quarter, month, week, date_block, titles = locate_chain(doc, day)
+        if not week:
+            raise RuntimeError(f"创建周标题失败: {titles['week']}")
 
-    date_block = find_heading(blocks, 5, titles["date"])
     if not date_block:
-        insert_after_section(doc, blocks, week, 4, [make_heading(5, titles["date"])])
-        blocks = doc.blocks()
-        date_block = find_heading(blocks, 5, titles["date"])
+        insert_at_section_top(doc, blocks, week, 5, [make_heading(5, titles["date"])])
+        blocks, log_h1, quarter, month, week, date_block, titles = locate_chain(doc, day)
+        if not date_block:
+            raise RuntimeError(f"创建日期标题失败: {titles['date']}")
 
     return date_block, titles
 
@@ -491,20 +550,21 @@ def cmd_init(doc, day):
 
     titles = period_titles(day)
 
-    quarter = find_heading(blocks, 2, titles["quarter"])
+    quarter = find_in_section(doc, blocks, log_h1, 2, titles["quarter"])
     if not quarter:
-        insert_after_section(doc, blocks, log_h1, 1, [make_heading(2, titles["quarter"])])
+        insert_at_section_top(doc, blocks, log_h1, 2, [make_heading(2, titles["quarter"])])
         blocks = doc.blocks()
-        quarter = find_heading(blocks, 2, titles["quarter"])
+        quarter = find_in_section(doc, blocks, log_h1, 2, titles["quarter"])
         if not quarter:
             raise RuntimeError(f"创建季度标题失败: {titles['quarter']}")
         created.append(f"{titles['quarter']}(H2)")
 
-    month = find_heading(blocks, 3, titles["month"])
+    month = find_in_section(doc, blocks, quarter, 3, titles["month"])
     if not month:
-        insert_after_section(doc, blocks, quarter, 2, [make_heading(3, titles["month"])])
+        insert_at_section_top(doc, blocks, quarter, 3, [make_heading(3, titles["month"])],
+                              skip_keywords=("总结",))
         blocks = doc.blocks()
-        month = find_heading(blocks, 3, titles["month"])
+        month = find_in_section(doc, blocks, quarter, 3, titles["month"])
         if not month:
             raise RuntimeError(f"创建月份标题失败: {titles['month']}")
         created.append(f"{titles['month']}(H3)")
