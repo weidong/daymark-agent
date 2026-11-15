@@ -347,7 +347,9 @@ def following_items(doc, blocks, date_block):
         b = by_id.get(cid, {})
         if heading_level(b):
             break
-        items.append((cid, block_text(b)))
+        text = block_text(b).strip()
+        if text:
+            items.append((cid, text))
     return items
 
 
@@ -941,4 +943,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except RuntimeError as e:
+        # 失败就如实报错并退出，不输出“已写入”这类成功提示。
+        print(f"执行失败：{e}")
+        sys.exit(1)
