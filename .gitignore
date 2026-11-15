@@ -1,0 +1,20 @@
+.gradle/
+.kotlin/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+*.apk
+*.keystore
+.env
+.env.*
+!.env.example
+*.aab
+*.log
+.venv/
+Thumbs.db
+__pycache__/
+.DS_Store
+# xiaoman traces pull/show 的默认输出目录
+/traces/
