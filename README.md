@@ -6,6 +6,10 @@ DayMark 是一个跑在安卓手机上的个人工作日志 Agent：聊天界面
 
 <img src="docs/images/home.png" width="320" alt="DayMark 首页" />
 
+## 下载
+
+最新安装包在 [Releases](https://github.com/weidong/daymark-agent/releases/latest)（debug 签名，自用测试，不要用于正式分发）。打 `v*` 标签会自动构建 APK 并发布，流程见 `.github/workflows/release.yml`。
+
 ## 它能做什么
 
 | 能力 | 说法 | 落到哪 |
