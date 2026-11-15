@@ -473,6 +473,55 @@ def rename_heading(doc, block_id, text):
     return r.get("code") == 0
 
 
+def cmd_init(doc, day):
+    """只建板块、当前季度、当前月份，不建周和日期。"""
+    doc.tokens.refresh_if_needed()
+    blocks = doc.blocks()
+    created = []
+
+    log_h1 = find_heading(blocks, 1, "📅 行知日志")
+    if not log_h1:
+        page = doc.page(blocks)
+        doc.insert(len(page.get("children", [])), [make_heading(1, "📅 行知日志")])
+        blocks = doc.blocks()
+        log_h1 = find_heading(blocks, 1, "📅 行知日志")
+        if not log_h1:
+            raise RuntimeError("创建「📅 行知日志」失败")
+        created.append("板块「📅 行知日志」(H1)")
+
+    titles = period_titles(day)
+
+    quarter = find_heading(blocks, 2, titles["quarter"])
+    if not quarter:
+        insert_after_section(doc, blocks, log_h1, 1, [make_heading(2, titles["quarter"])])
+        blocks = doc.blocks()
+        quarter = find_heading(blocks, 2, titles["quarter"])
+        if not quarter:
+            raise RuntimeError(f"创建季度标题失败: {titles['quarter']}")
+        created.append(f"{titles['quarter']}(H2)")
+
+    month = find_heading(blocks, 3, titles["month"])
+    if not month:
+        insert_after_section(doc, blocks, quarter, 2, [make_heading(3, titles["month"])])
+        blocks = doc.blocks()
+        month = find_heading(blocks, 3, titles["month"])
+        if not month:
+            raise RuntimeError(f"创建月份标题失败: {titles['month']}")
+        created.append(f"{titles['month']}(H3)")
+
+    blocks = doc.blocks()
+    ready = all([
+        find_heading(blocks, 1, "📅 行知日志"),
+        find_heading(blocks, 2, titles["quarter"]),
+        find_heading(blocks, 3, titles["month"]),
+    ])
+    if created:
+        print("已创建：" + "、".join(created))
+    else:
+        print("结构已就绪，无需创建")
+    print(f"回读确认：{'H1/H2/H3 均存在' if ready else '结构不完整'}")
+
+
 def cmd_review(doc, year, month, path, force):
     doc.tokens.refresh_if_needed()
     view, title, is_placeholder = ensure_quickview(doc, year, month)
@@ -522,7 +571,7 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["today", "append", "show", "update", "delete", "month", "review"])
+    parser.add_argument("action", choices=["init", "today", "append", "show", "update", "delete", "month", "review"])
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--date", default="")
     parser.add_argument("--month", default="")
@@ -539,7 +588,9 @@ def main():
     day = dt.date.fromisoformat(args.date) if args.date else dt.date.today()
     doc = Doc(Tokens(), cfg["FEISHU_DOC_TOKEN"])
 
-    if args.action == "today":
+    if args.action == "init":
+        cmd_init(doc, day)
+    elif args.action == "today":
         cmd_today(doc, day)
     elif args.action == "append":
         if not args.text:
