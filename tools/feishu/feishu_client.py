@@ -311,13 +311,76 @@ def cmd_show(doc, day):
         print(f"- {t}")
 
 
+def collect_month(doc, blocks, year, month):
+    """读取某个月份标题下的所有日期和条目。"""
+    month_title = f"{year}年{month}月"
+    page = doc.page(blocks)
+    by_id = {b["block_id"]: b for b in blocks}
+    children = page.get("children", [])
+
+    start = None
+    for i, cid in enumerate(children):
+        b = by_id.get(cid, {})
+        if heading_level(b) == 3 and block_text(b).strip() == month_title:
+            start = i
+            break
+    if start is None:
+        return month_title, None
+
+    days, current = [], None
+    for cid in children[start + 1:]:
+        b = by_id.get(cid, {})
+        lv = heading_level(b)
+        if lv and lv <= 3:
+            break
+        if lv == 5:
+            current = {"date": block_text(b).strip(), "items": []}
+            days.append(current)
+        elif lv:
+            continue
+        elif current is not None:
+            text = block_text(b).strip()
+            if text:
+                current["items"].append(text)
+    return month_title, days
+
+
+def cmd_month(doc, year, month, as_json):
+    doc.tokens.refresh_if_needed()
+    title, days = collect_month(doc, doc.blocks(), year, month)
+    if days is None:
+        print(f"{title} 尚未创建")
+        return
+
+    work_days = [d for d in days if any(i != "开工" for i in d["items"])]
+    total = sum(1 for d in days for i in d["items"] if i != "开工")
+
+    if as_json:
+        print(json.dumps({
+            "month": title,
+            "days": days,
+            "work_days": len(work_days),
+            "total_items": total,
+        }, ensure_ascii=False, indent=2))
+        return
+
+    print(title)
+    for d in days:
+        print(d["date"])
+        for item in d["items"]:
+            print(f"- {item}")
+    print(f"有记录 {len(days)} 天，其中有工作内容 {len(work_days)} 天，共 {total} 条（不含开工）")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["today", "append", "show"])
+    parser.add_argument("action", choices=["today", "append", "show", "month"])
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--date", default="")
+    parser.add_argument("--month", default="")
+    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     cfg = load_env()
@@ -330,6 +393,10 @@ def main():
         if not args.text:
             parser.error("append 需要内容")
         cmd_append(doc, day, args.text)
+    elif args.action == "month":
+        month = args.month or day.strftime("%Y-%m")
+        year, mon = month.split("-")
+        cmd_month(doc, int(year), int(mon), args.json)
     else:
         cmd_show(doc, day)
 
