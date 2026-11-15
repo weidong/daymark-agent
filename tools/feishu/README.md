@@ -22,6 +22,12 @@ python tools/feishu/feishu_client.py append "完成结营作业"
 # 查看今天已记录的内容
 python tools/feishu/feishu_client.py show
 
+# 修改一条记录（原文需精确匹配）
+python tools/feishu/feishu_client.py update --old "原文" --new "新文"
+
+# 删除一条记录（必须显式加 --yes）
+python tools/feishu/feishu_client.py delete --text "原文" --yes
+
 # 按月汇总，供复盘使用
 python tools/feishu/feishu_client.py month --month 2026-11
 python tools/feishu/feishu_client.py month --month 2026-11 --json
