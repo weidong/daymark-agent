@@ -31,7 +31,7 @@ internal fun ChatHeader(ready: Boolean, busy: Boolean, attention: Boolean) {
         }
         Column(Modifier.weight(1f).padding(start = 10.dp)) {
             Text("DayMark", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("你的手机小助手", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("你的工作日志助手", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
             Text(when { attention -> "等你确认"; busy -> "处理中"; ready -> "已就绪"; else -> "待设置" },
@@ -44,8 +44,8 @@ internal fun ChatHeader(ready: Boolean, busy: Boolean, attention: Boolean) {
 @Composable
 internal fun ChatWelcome(onExample: (String) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(top = 26.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("今天想做点什么？", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
-        Text("说一句，我来帮你动手。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("今天想做什么？", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+        Text("说一句，我记到飞书里。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(16.dp))
         Example(Icons.Outlined.WbSunny, "开工", "建今天的日志，写一条开工", "开工", onExample)
         Example(Icons.Outlined.EditNote, "记录一条", "说完就写进当天日志", "记录：", onExample)
