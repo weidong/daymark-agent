@@ -348,6 +348,73 @@ def collect_month(doc, blocks, year, month):
     return month_title, days
 
 
+def locate_day(doc, day):
+    doc.tokens.refresh_if_needed()
+    blocks = doc.blocks()
+    titles = period_titles(day)
+    date_block = find_heading(blocks, 5, titles["date"])
+    if not date_block:
+        return None, None, titles["date"]
+    page = doc.page(blocks)
+    return blocks, page.get("children", []), titles["date"]
+
+
+def find_entry(doc, blocks, children, date_block, text):
+    hits = [(i, t) for i, t in following_items(doc, blocks, date_block) if t == text]
+    if not hits:
+        return None, 0
+    if len(hits) > 1:
+        return None, len(hits)
+    return hits[0][0], 1
+
+
+def cmd_update(doc, day, old, new):
+    blocks, children, title = locate_day(doc, day)
+    if not blocks:
+        print(f"{title} 尚无记录")
+        return
+    date_block = find_heading(blocks, 5, title)
+    raw, count = find_entry(doc, blocks, children, date_block, old)
+    if count == 0:
+        print(f"{title} 未找到内容：{old}")
+        return
+    if count > 1:
+        print(f"匹配到 {count} 条相同内容，请写得更完整后重试")
+        return
+
+    block_id = raw if isinstance(raw, str) else children[raw]
+    r = api("PATCH", f"/docx/v1/documents/{doc.doc_id}/blocks/{block_id}",
+            token=doc.tokens.access,
+            payload={"update_text_elements": {"elements": [{"text_run": {"content": new}}]}})
+    print("更新成功" if r.get("code") == 0 else f"更新失败: {r}")
+
+
+def cmd_delete(doc, day, text, confirmed):
+    if not confirmed:
+        print("删除需要显式确认，请加 --yes")
+        return
+    blocks, children, title = locate_day(doc, day)
+    if not blocks:
+        print(f"{title} 尚无记录")
+        return
+    date_block = find_heading(blocks, 5, title)
+    raw, count = find_entry(doc, blocks, children, date_block, text)
+    if count == 0:
+        print(f"{title} 未找到内容：{text}")
+        return
+    if count > 1:
+        print(f"匹配到 {count} 条相同内容，请写得更完整后重试")
+        return
+
+    block_id = raw if isinstance(raw, str) else children[raw]
+    index = children.index(block_id)
+    r = api("DELETE",
+            f"/docx/v1/documents/{doc.doc_id}/blocks/{doc.doc_id}/children/batch_delete",
+            token=doc.tokens.access,
+            payload={"start_index": index, "end_index": index + 1})
+    print("删除成功" if r.get("code") == 0 else f"删除失败: {r}")
+
+
 def cmd_month(doc, year, month, as_json):
     doc.tokens.refresh_if_needed()
     title, days = collect_month(doc, doc.blocks(), year, month)
@@ -455,12 +522,16 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["today", "append", "show", "month", "review"])
+    parser.add_argument("action", choices=["today", "append", "show", "update", "delete", "month", "review"])
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--date", default="")
     parser.add_argument("--month", default="")
     parser.add_argument("--file", default="")
+    parser.add_argument("--old", default="")
+    parser.add_argument("--new", default="")
+    parser.add_argument("--text", dest="del_text", default="")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--yes", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -474,6 +545,14 @@ def main():
         if not args.text:
             parser.error("append 需要内容")
         cmd_append(doc, day, args.text)
+    elif args.action == "update":
+        if not args.old or not args.new:
+            parser.error("update 需要 --old 和 --new")
+        cmd_update(doc, day, args.old, args.new)
+    elif args.action == "delete":
+        if not args.del_text:
+            parser.error("delete 需要 --text 指定内容")
+        cmd_delete(doc, day, args.del_text, args.yes)
     elif args.action == "month":
         month = args.month or day.strftime("%Y-%m")
         year, mon = month.split("-")
