@@ -4,7 +4,7 @@
 #   XIAOMAN_TOOLCHAIN  optional env script to source first (sets JAVA_HOME, ANDROID_HOME, ...)
 #   XIAOMAN_BUILD_DIR  out-of-tree build root
 #                       (default: <toolchain dir>/builds/<checkout hash>/out if XIAOMAN_TOOLCHAIN is set,
-#                       else ${XDG_CACHE_HOME:-~/.cache}/xiaoman/<checkout hash>/out)
+#                       else ${XDG_CACHE_HOME:-~/.cache}/daymark/<checkout hash>/out)
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 sha1() { if command -v sha1sum >/dev/null; then sha1sum; else shasum -a 1; fi; }
@@ -15,7 +15,7 @@ if [[ -n "$toolchain" ]]; then
   # shellcheck disable=SC1090
   source "$toolchain"
 else
-  base="${XDG_CACHE_HOME:-$HOME/.cache}/xiaoman/$key"
+  base="${XDG_CACHE_HOME:-$HOME/.cache}/daymark/$key"
 fi
 offline=(--offline)
 if [[ "${1:-}" == "--online" ]]; then offline=(); shift; fi

@@ -7,7 +7,7 @@
  * Errors: {ok:false, code, error}. The token is shown once; this tab keeps it in sessionStorage until closed.
  */
 
-/** Merges a claimed token into the web app's saved model settings (localStorage xiaoman.model), keeping own-key fields. */
+/** Merges a claimed token into the web app's saved model settings (localStorage daymark.model), keeping own-key fields. */
 function withClassToken(saved, token) {
   const v = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   return {...v, mode: 'class', classToken: token};
@@ -22,7 +22,7 @@ if (typeof document !== 'undefined') {
   (() => {
     const $ = id => document.getElementById(id);
     const steps = ['loading', 'closed', 'name', 'phrase', 'done'];
-    const KEY = 'xiaoman.claim';
+    const KEY = 'daymark.claim';
     let info = {};
     let challenge = null;
     let timer = null;
@@ -92,7 +92,7 @@ if (typeof document !== 'undefined') {
       $('done-total').textContent = amountText(r.totalTokens); $('done-daily').textContent = amountText(r.dailyTokens);
       $('done-expires').textContent = r.expiresAt;
       $('android-url').textContent = location.origin + '/v1';
-      $('android-model').textContent = r.model || info.model || 'xiaoman-class';
+      $('android-model').textContent = r.model || info.model || 'daymark-class';
       show('done');
     }
 
@@ -128,8 +128,8 @@ if (typeof document !== 'undefined') {
       const token = $('token').textContent;
       try {
         let saved = null;
-        try { saved = JSON.parse(localStorage.getItem('xiaoman.model') || 'null'); } catch (_) { saved = null; }
-        localStorage.setItem('xiaoman.model', JSON.stringify(withClassToken(saved, token)));
+        try { saved = JSON.parse(localStorage.getItem('daymark.model') || 'null'); } catch (_) { saved = null; }
+        localStorage.setItem('daymark.model', JSON.stringify(withClassToken(saved, token)));
       } catch (_) { notice('浏览器不允许保存设置（可能是无痕模式）。请复制令牌，到网页版设置里手动填写。'); return; }
       location.href = '/#claimed';
     });

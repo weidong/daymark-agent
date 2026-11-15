@@ -7,7 +7,7 @@ plugins {
 kotlin { jvmToolchain(17) }
 
 application {
-    mainClass.set("dev.xiaoman.ios.runner.MainKt")
+    mainClass.set("com.daymark.ios.runner.MainKt")
     applicationName = "ios-runner"
     applicationDefaultJvmArgs = listOf("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8")
 }

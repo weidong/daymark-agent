@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:networkSecurityConfig="@xml/network_security_config">
-        <!-- Developer bridge for the xiaoman CLI (adb shell am broadcast). Debug builds only. -->
+        <!-- Developer bridge for the daymark CLI (adb shell am broadcast). Debug builds only. -->
         <receiver
             android:name=".debug.DebugReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver"
             xmlns:tools="http://schemas.android.com/tools">
             <intent-filter>
-                <action android:name="dev.xiaoman.debug.RUN" />
-                <action android:name="dev.xiaoman.debug.STOP" />
-                <action android:name="dev.xiaoman.debug.RELOAD_SKILLS" />
-                <action android:name="dev.xiaoman.debug.SAY" />
+                <action android:name="com.daymark.debug.RUN" />
+                <action android:name="com.daymark.debug.STOP" />
+                <action android:name="com.daymark.debug.RELOAD_SKILLS" />
+                <action android:name="com.daymark.debug.SAY" />
             </intent-filter>
         </receiver>
     </application>

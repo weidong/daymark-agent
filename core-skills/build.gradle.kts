@@ -15,5 +15,5 @@ dependencies {
 tasks.test {
     val examples = rootProject.file("skills/examples")
     inputs.dir(examples).withPropertyName("skillExamples")
-    systemProperty("xiaoman.skills.examples", examples.path)
+    systemProperty("daymark.skills.examples", examples.path)
 }

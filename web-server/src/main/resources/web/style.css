@@ -1,6 +1,6 @@
 :root {
   color-scheme: light dark;
-  /* Same palette as the Android app (app/src/main/kotlin/dev/xiaoman/app/ui/Theme.kt). */
+  /* Same palette as the Android app (app/src/main/kotlin/dev/daymark/app/ui/Theme.kt). */
   --bg: #f7f9f6;
   --surface: #fff;
   --surface-low: #f0f4ef;

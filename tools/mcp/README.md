@@ -1,6 +1,6 @@
 # Daymark MCP 服务
 
-把飞书的年度记录读写能力封装成 MCP 工具，供小满（`core-mcp`）这类客户端直接调用，不需要改客户端代码。
+把飞书的年度记录读写能力封装成 MCP 工具，供Daymark（`core-mcp`）这类客户端直接调用，不需要改客户端代码。
 
 ## 前置条件
 
@@ -44,13 +44,13 @@ curl http://127.0.0.1:8765/health
 
 日期/月份参数缺省为当天/当月，格式为 `YYYY-MM-DD`、`YYYY-MM`。
 
-## 在模拟器里接小满
+## 在模拟器里接Daymark
 
 ```bash
 adb reverse tcp:8765 tcp:8765
 ```
 
-小满「服务 → 其他 MCP 服务」里填 `http://127.0.0.1:8765/mcp` 即可。地址校验允许
+Daymark「服务 → 其他 MCP 服务」里填 `http://127.0.0.1:8765/mcp` 即可。地址校验允许
 `localhost` / `127.0.0.1` 走 http，其余必须是 https。
 
 注意：Android 15 默认禁止明文 HTTP，所以 debug 包通过

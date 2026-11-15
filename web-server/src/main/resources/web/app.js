@@ -1,14 +1,14 @@
 'use strict';
 /*
- * Xiaoman web API (same origin; no external dependencies):
+ * Daymark web API (same origin; no external dependencies):
  * GET /api/info {name,version,accessCodeRequired,classTokens}; GET /api/catalog {servers}.
- * POST /api/session {sessionId}; X-Xiaoman-Session in subsequent requests.
- * All /api/* use X-Xiaoman-Access when configured; 401 asks for a new code.
+ * POST /api/session {sessionId}; X-Daymark-Session in subsequent requests.
+ * All /api/* use X-Daymark-Access when configured; 401 asks for a new code.
  * 404 {error:"会话已过期"} creates a session and retries the request once.
  * POST /api/chat {message,model:{baseUrl,model,apiKey} | model:{classToken},mcp:{enabled,keys,custom},memory:{notes},now}.
  *   classToken (only when /api/info classTokens is true): the server calls the instructor's model with its own key,
- *   metered per token; the token is kept only in this browser (xiaoman.model).
- *   memory.notes = [{permalink,markdown,updatedAt}] from localStorage (xiaoman.memory); the server keeps
+ *   metered per token; the token is kept only in this browser (daymark.model).
+ *   memory.notes = [{permalink,markdown,updatedAt}] from localStorage (daymark.memory); the server keeps
  *   them only for this turn and never writes them to disk.
  * POST SSE data JSON types: reply{text}, tool{tool,ok,summary},
  * memory{action:"saved",permalink,title,markdown,updatedAt} | memory{action:"deleted",permalink},
@@ -16,7 +16,7 @@
  * reminder{text,at,ics}, warning{message}, error{message}, done. 409 = busy.
  * POST /api/answer {id,approved} or {id,text} -> {ok}.
  * POST /api/mcp/test {mcp} -> {servers:[{name,title,connected,toolCount,error}],warnings}.
- * Errors: {error}. Storage keys begin xiaoman.; history is capped at 200 rows.
+ * Errors: {error}. Storage keys begin daymark.; history is capped at 200 rows.
  * parseSseChunk accepts an unconsumed string (including partial lines) and returns
  * complete JSON events plus rest. Call again with rest + the next decoded chunk.
  * linkify returns [{text, href?}]; render with textContent/createElement only.
@@ -153,7 +153,7 @@ if (typeof document !== 'undefined') {
   (() => {
     const $ = id => document.getElementById(id);
     const DEFAULT_URL = 'https://ark.cn-beijing.volces.com/api/v3';
-    const prefix = 'xiaoman.';
+    const prefix = 'daymark.';
     const knownTypes = new Set(['user', 'reply', 'tool', 'memory', 'approval', 'question', 'reminder', 'warning', 'error']);
     function read(key, fallback, session = false) {
       try {
@@ -236,9 +236,9 @@ if (typeof document !== 'undefined') {
       const kb = Math.ceil(new TextEncoder().encode(JSON.stringify(notes)).length / 1024);
       $('memory-count').textContent = notes.length ? '共 ' + notes.length + ' 条，约 ' + kb + ' KB' : '';
       $('memory-warning').hidden = payload.dropped === 0;
-      $('memory-warning').textContent = '记忆太多，最早的 ' + payload.dropped + ' 条暂时不会发给小满。可以删掉不需要的。';
+      $('memory-warning').textContent = '记忆太多，最早的 ' + payload.dropped + ' 条暂时不会发给Daymark。可以删掉不需要的。';
       $('clear-memory').disabled = !notes.length;
-      if (!notes.length) { list.append(node('p', 'muted', '还没有记忆。聊天时说「记住……」，小满就会记在这里。')); return; }
+      if (!notes.length) { list.append(node('p', 'muted', '还没有记忆。聊天时说「记住……」，Daymark就会记在这里。')); return; }
       for (const note of [...notes].sort((a, b) => b.updatedAt - a.updatedAt)) {
         const item = node('article', 'memory-item');
         const top = node('div', 'service-top');
@@ -336,8 +336,8 @@ if (typeof document !== 'undefined') {
       for (;;) {
         const requestSession = sessionId;
         const headers = {Accept: options.stream ? 'text/event-stream' : 'application/json'};
-        if (accessCode) headers['X-Xiaoman-Access'] = accessCode;
-        if (requestSession) headers['X-Xiaoman-Session'] = requestSession;
+        if (accessCode) headers['X-Daymark-Access'] = accessCode;
+        if (requestSession) headers['X-Daymark-Session'] = requestSession;
         if (options.body !== undefined) headers['Content-Type'] = 'application/json';
         const response = await fetch(path, {method: options.method || 'GET', headers, body: options.body === undefined ? undefined : JSON.stringify(options.body), credentials: 'same-origin', cache: 'no-store'});
         if (response.status === 401) {
@@ -370,7 +370,7 @@ if (typeof document !== 'undefined') {
         el.append(line);
       } else if (row.type === 'approval' || row.type === 'question') {
         const card = node('div', 'action-card');
-        card.append(node('span', 'eyebrow', row.type === 'approval' ? '需要你确认' : '小满问'));
+        card.append(node('span', 'eyebrow', row.type === 'approval' ? '需要你确认' : 'Daymark问'));
         card.append(node('h3', '', row.type === 'approval' ? row.title || '允许这次调用吗？' : row.question));
         if (row.type === 'approval') {
           card.append(node('p', 'muted', '服务：' + (row.server || '未知') + ' · 工具：' + (row.tool || '未知')));
@@ -431,7 +431,7 @@ if (typeof document !== 'undefined') {
         const add = button('添加到日历', () => {
           const blob = new Blob([row.ics], {type: 'text/calendar;charset=utf-8'});
           const url = URL.createObjectURL(blob);
-          const anchor = node('a'); anchor.href = url; anchor.download = 'xiaoman-reminder.ics';
+          const anchor = node('a'); anchor.href = url; anchor.download = 'daymark-reminder.ics';
           document.body.append(anchor); anchor.click(); anchor.remove();
           // Leave Safari time to hand the calendar file to its native preview.
           setTimeout(() => URL.revokeObjectURL(url), 60000);
@@ -730,7 +730,7 @@ if (typeof document !== 'undefined') {
     });
     $('clear-memory').addEventListener('click', () => {
       if (busy) { notify('请等本次对话结束后再清空记忆。'); return; }
-      if (!window.confirm('清空这台设备上小满的全部记忆？此操作不能撤销。')) return;
+      if (!window.confirm('清空这台设备上Daymark的全部记忆？此操作不能撤销。')) return;
       notes = []; remove('memory'); renderMemory(); notify('记忆已清空。');
     });
     // Another tab of the same site changed memory: pick it up.

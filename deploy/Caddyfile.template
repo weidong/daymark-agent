@@ -1,7 +1,7 @@
-# 小满网页版的 Caddy 配置模板。install.sh 会把 __SITE__ 和 __PORT__ 换成实际值，写到 /etc/caddy/Caddyfile。
+# Daymark网页版的 Caddy 配置模板。install.sh 会把 __SITE__ 和 __PORT__ 换成实际值，写到 /etc/caddy/Caddyfile。
 #
 # __SITE__ 两种写法（Caddy 都会自动申请 Let's Encrypt 证书并续期，需要服务器 80/443 对公网开放）：
-#   1. 自有域名：先把域名的 A 记录指向服务器公网 IP，例如  xiaoman.example.com
+#   1. 自有域名：先把域名的 A 记录指向服务器公网 IP，例如  daymark.example.com
 #   2. 没有域名：用 sslip.io，它把 <ip>.sslip.io 解析成 <ip>，例如  203.0.113.10.sslip.io
 #
 # __PORT__ 是 web-server 只在本机监听的端口（默认 8787），不要在防火墙里对外开放它。
@@ -38,8 +38,8 @@ __SITE__ {
 	# 	format filter {
 	# 		wrap console
 	# 		fields {
-	# 			request>headers>X-Xiaoman-Access delete
-	# 			request>headers>X-Xiaoman-Session delete
+	# 			request>headers>X-Daymark-Access delete
+	# 			request>headers>X-Daymark-Session delete
 	# 		}
 	# 	}
 	# }

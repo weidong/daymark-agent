@@ -33,10 +33,10 @@ val bundleSkills = tasks.register<BundleSkillsTask>("bundleSkillAssets") {
 }
 
 android {
-    namespace = "dev.xiaoman.app"
+    namespace = "com.daymark.app"
     compileSdk = 35
     defaultConfig {
-        applicationId = "dev.xiaoman.app"
+        applicationId = "com.daymark.app"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
