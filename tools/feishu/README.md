@@ -38,6 +38,14 @@ python tools/feishu/feishu_client.py review --month 2026-11 --file .tmp/review-2
 # 重写已有速览（会先清空旧内容）
 python tools/feishu/feishu_client.py review --month 2026-11 --file .tmp/review-2026-11.md --force
 
+# 季度 / 半年 / 年度：先读下级总结，再写复盘
+python tools/feishu/feishu_client.py period --period quarter --at 2026-Q4 --json
+python tools/feishu/feishu_client.py period --period half --at 2026-H2 --json
+python tools/feishu/feishu_client.py period --period year --at 2026 --json
+python tools/feishu/feishu_client.py review --period quarter --at 2026-Q4 --file .tmp/review-2026-Q4.md
+python tools/feishu/feishu_client.py review --period half --at 2026-H2 --file .tmp/review-2026-H2.md
+python tools/feishu/feishu_client.py review --period year --at 2026 --file .tmp/review-2026-year.md
+
 # 指定日期（补记或测试）
 python tools/feishu/feishu_client.py show --date 2026-11-15
 ```
@@ -48,8 +56,11 @@ python tools/feishu/feishu_client.py show --date 2026-11-15
 
 ```text
 H1 📅 行知日志
+  H2 2026年下半年总结          ← 半年 / 年度总结固定在板块顶部
   H2 2026年4季度
+    H3 2026年4季度总结         ← 季度总结在季度顶部
     H3 2026年11月
+      H4 2026年11月速览        ← 月度速览在月份顶部
       H4 2026年第46周
         H5 2026年11月15日 星期日
           - 开工
@@ -75,6 +86,7 @@ FEISHU_DOC_TOKEN=
 - `docx:document`
 - `wiki:wiki:readonly`
 - `drive:drive:readonly`
+- `space:document:delete`（仅用于清理误建的子文档，`split` 本身不需要）
 
 ## 令牌有效期
 
