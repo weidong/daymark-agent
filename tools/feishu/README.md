@@ -22,6 +22,16 @@ python tools/feishu/feishu_client.py append "完成结营作业"
 # 查看今天已记录的内容
 python tools/feishu/feishu_client.py show
 
+# 按月汇总，供复盘使用
+python tools/feishu/feishu_client.py month --month 2026-11
+python tools/feishu/feishu_client.py month --month 2026-11 --json
+
+# 写入月度速览，--file 为四类归纳后的内容
+python tools/feishu/feishu_client.py review --month 2026-11 --file .tmp/review-2026-11.md
+
+# 重写已有速览（会先清空旧内容）
+python tools/feishu/feishu_client.py review --month 2026-11 --file .tmp/review-2026-11.md --force
+
 # 指定日期（补记或测试）
 python tools/feishu/feishu_client.py show --date 2026-11-15
 ```

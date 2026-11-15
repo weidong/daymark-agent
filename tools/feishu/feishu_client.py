@@ -43,7 +43,7 @@ def load_env():
     return cfg
 
 
-def api(method, path, token=None, payload=None, retries=3):
+def api(method, path, token=None, payload=None, retries=5):
     url = path if path.startswith("http") else BASE + path
     data = json.dumps(payload).encode("utf-8") if payload is not None else None
     headers = {}
@@ -52,7 +52,8 @@ def api(method, path, token=None, payload=None, retries=3):
     if data:
         headers["Content-Type"] = "application/json; charset=utf-8"
     last = None
-    for _ in range(retries):
+    delay = 2
+    for attempt in range(retries):
         try:
             req = urllib.request.Request(url, data=data, headers=headers, method=method)
             with urllib.request.urlopen(req, timeout=30) as r:
@@ -65,7 +66,9 @@ def api(method, path, token=None, payload=None, retries=3):
                 return {"code": e.code, "msg": body}
         except Exception as e:
             last = e
-            time.sleep(2)
+            if attempt < retries - 1:
+                time.sleep(delay)
+                delay *= 2
     raise RuntimeError(f"{method} {url} failed: {last}")
 
 
@@ -311,13 +314,154 @@ def cmd_show(doc, day):
         print(f"- {t}")
 
 
+def collect_month(doc, blocks, year, month):
+    """读取某个月份标题下的所有日期和条目。"""
+    month_title = f"{year}年{month}月"
+    page = doc.page(blocks)
+    by_id = {b["block_id"]: b for b in blocks}
+    children = page.get("children", [])
+
+    start = None
+    for i, cid in enumerate(children):
+        b = by_id.get(cid, {})
+        if heading_level(b) == 3 and block_text(b).strip() == month_title:
+            start = i
+            break
+    if start is None:
+        return month_title, None
+
+    days, current = [], None
+    for cid in children[start + 1:]:
+        b = by_id.get(cid, {})
+        lv = heading_level(b)
+        if lv and lv <= 3:
+            break
+        if lv == 5:
+            current = {"date": block_text(b).strip(), "items": []}
+            days.append(current)
+        elif lv:
+            continue
+        elif current is not None:
+            text = block_text(b).strip()
+            if text:
+                current["items"].append(text)
+    return month_title, days
+
+
+def cmd_month(doc, year, month, as_json):
+    doc.tokens.refresh_if_needed()
+    title, days = collect_month(doc, doc.blocks(), year, month)
+    if days is None:
+        print(f"{title} 尚未创建")
+        return
+
+    work_days = [d for d in days if any(i != "开工" for i in d["items"])]
+    total = sum(1 for d in days for i in d["items"] if i != "开工")
+
+    if as_json:
+        print(json.dumps({
+            "month": title,
+            "days": days,
+            "work_days": len(work_days),
+            "total_items": total,
+        }, ensure_ascii=False, indent=2))
+        return
+
+    print(title)
+    for d in days:
+        print(d["date"])
+        for item in d["items"]:
+            print(f"- {item}")
+    print(f"有记录 {len(days)} 天，其中有工作内容 {len(work_days)} 天，共 {total} 条（不含开工）")
+
+
+def ensure_quickview(doc, year, month):
+    """找到或创建月份速览标题，返回标题块、标题文字、是否为占位标题。"""
+    title = f"{year}年{month}月速览"
+    blocks = doc.blocks()
+    found = find_heading(blocks, 4, title)
+    if found:
+        return found, title, False
+
+    for b in blocks:
+        if heading_level(b) == 4:
+            text = block_text(b).strip()
+            if text.startswith(f"{title}（") or text.startswith(f"{title}("):
+                return b, title, True
+
+    month_block = find_heading(blocks, 3, f"{year}年{month}月")
+    if not month_block:
+        raise RuntimeError(f"未找到 {year}年{month}月 标题")
+    page = doc.page(blocks)
+    index = page["children"].index(month_block["block_id"]) + 1
+    doc.insert(index, [make_heading(4, title)])
+    blocks = doc.blocks()
+    return find_heading(blocks, 4, title), title, False
+
+
+def rename_heading(doc, block_id, text):
+    r = api("PATCH", f"/docx/v1/documents/{doc.doc_id}/blocks/{block_id}",
+            token=doc.tokens.access,
+            payload={"update_text_elements": {"elements": [{"text_run": {"content": text}}]}})
+    return r.get("code") == 0
+
+
+def cmd_review(doc, year, month, path, force):
+    doc.tokens.refresh_if_needed()
+    view, title, is_placeholder = ensure_quickview(doc, year, month)
+    blocks = doc.blocks()
+    page = doc.page(blocks)
+    children = page.get("children", [])
+    by_id = {b["block_id"]: b for b in blocks}
+
+    start = children.index(view["block_id"])
+    end = start + 1
+    while end < len(children):
+        lv = heading_level(by_id.get(children[end], {}))
+        if lv and lv <= 4:
+            break
+        end += 1
+
+    if end > start + 1 and not force and not is_placeholder:
+        print(f"{title} 已有内容，未覆盖；确需重写请加 --force")
+        return
+
+    if end > start + 1:
+        r = api("DELETE",
+                f"/docx/v1/documents/{doc.doc_id}/blocks/{doc.doc_id}/children/batch_delete",
+                token=doc.tokens.access,
+                payload={"start_index": start + 1, "end_index": end})
+        if r.get("code") != 0:
+            raise RuntimeError(f"清理旧内容失败: {r}")
+        blocks = doc.blocks()
+        page = doc.page(blocks)
+        children = page.get("children", [])
+        start = children.index(view["block_id"])
+
+    with open(path, encoding="utf-8") as f:
+        lines = [line.strip() for line in f if line.strip()]
+    payload = [
+        {"block_type": 2, "text": {"elements": [{"text_run": {"content": line}}]}}
+        for line in lines
+    ]
+    doc.insert(start + 1, payload)
+    if is_placeholder:
+        renamed = rename_heading(doc, view["block_id"], title)
+        print(f"占位标题已改为 {title}" if renamed else "占位标题改名失败，内容已写入")
+    print(f"{title} 已写入 {len(payload)} 段")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["today", "append", "show"])
+    parser.add_argument("action", choices=["today", "append", "show", "month", "review"])
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--date", default="")
+    parser.add_argument("--month", default="")
+    parser.add_argument("--file", default="")
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     cfg = load_env()
@@ -330,6 +474,16 @@ def main():
         if not args.text:
             parser.error("append 需要内容")
         cmd_append(doc, day, args.text)
+    elif args.action == "month":
+        month = args.month or day.strftime("%Y-%m")
+        year, mon = month.split("-")
+        cmd_month(doc, int(year), int(mon), args.json)
+    elif args.action == "review":
+        if not args.file:
+            parser.error("review 需要 --file")
+        month = args.month or day.strftime("%Y-%m")
+        year, mon = month.split("-")
+        cmd_review(doc, int(year), int(mon), args.file, args.force)
     else:
         cmd_show(doc, day)
 
