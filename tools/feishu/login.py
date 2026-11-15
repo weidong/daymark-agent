@@ -11,12 +11,12 @@ import os
 import sys
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import escape, parse_qs, urlparse
+from urllib.parse import parse_qs, quote, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from feishu_client import TOKEN_FILE, api, load_env  # noqa: E402
 
-SCOPES = "docx:document wiki:wiki:readonly drive:drive:readonly"
+SCOPES = "docx:document wiki:wiki:readonly drive:drive:readonly space:document:delete"
 REDIRECT = "http://localhost:8080/callback"
 HOLD = {}
 
@@ -46,8 +46,8 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8")
     cfg = load_env()
     app_id = cfg["FEISHU_APP_ID"]
-    redirect = escape(REDIRECT)
-    scope = escape(SCOPES)
+    redirect = quote(REDIRECT, safe="")
+    scope = quote(SCOPES, safe="")
     url = (
         "https://open.feishu.cn/open-apis/authen/v1/authorize"
         f"?app_id={app_id}&redirect_uri={redirect}&scope={scope}&state=daymark"

@@ -13,9 +13,11 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 BASE = "https://open.feishu.cn/open-apis"
@@ -157,6 +159,14 @@ class Doc:
                 token=self.tokens.access, payload={"start_index": start, "end_index": end})
         if r.get("code") != 0:
             raise RuntimeError(f"删除失败: {r}")
+        self._cache = None
+        return r
+
+    def patch(self, block_id, elements):
+        r = api("PATCH", f"/docx/v1/documents/{self.doc_id}/blocks/{block_id}",
+                token=self.tokens.access, payload={"update_text_elements": {"elements": elements}})
+        if r.get("code") != 0:
+            raise RuntimeError(f"更新失败: {r}")
         self._cache = None
         return r
 
@@ -596,54 +606,285 @@ def cmd_init(doc, day):
     print(f"回读确认：{'H1/H2/H3 均存在' if ready else '结构不完整'}")
 
 
-def cmd_review(doc, year, month, path, force):
+def section_lines(doc, blocks, block):
+    """某标题下、下一个同级或更高级标题之前的非标题文本行。"""
+    children, by_id, start, end = section_span(doc, blocks, block)
+    lines = []
+    for i in range(start, end):
+        b = by_id.get(children[i], {})
+        if heading_level(b):
+            continue
+        text = block_text(b).strip()
+        if text:
+            lines.append(text)
+    return lines
+
+
+def sub_headings(doc, blocks, parent):
+    """父标题下紧邻一级的子标题，按文档顺序。"""
+    level = heading_level(parent) + 1
+    children, by_id, start, end = section_span(doc, blocks, parent)
+    out = []
+    for i in range(start, end):
+        b = by_id.get(children[i], {})
+        if heading_level(b) == level:
+            out.append(b)
+    return out
+
+
+MONTH_TITLE = re.compile(r"^(\d{4})年(\d{1,2})月$")
+QUARTER_TITLE = re.compile(r"^(\d{4})年(\d)季度$")
+
+
+def month_summary(doc, blocks, month_block):
+    for b in sub_headings(doc, blocks, month_block):
+        if "速览" in block_text(b):
+            return section_lines(doc, blocks, b)
+    return []
+
+
+def month_stats(doc, blocks, year, month):
+    _, days = collect_month(doc, blocks, year, month)
+    if days is None:
+        return 0, 0
+    work_days = len([d for d in days if any(i != "开工" for i in d["items"])])
+    total = sum(1 for d in days for i in d["items"] if i != "开工")
+    return work_days, total
+
+
+def collect_period(doc, year, m1, m2):
+    """按月份区间汇总季度、半年、年度数据，只读已有内容，不做推断。"""
+    blocks = doc.blocks()
+    result = {"work_days": 0, "total_items": 0, "quarters": [], "months": [], "halves": []}
+    h1 = find_heading(blocks, 1, "📅 行知日志")
+    if not h1:
+        return result
+
+    for b in sub_headings(doc, blocks, h1):
+        text = block_text(b).strip()
+        if re.match(rf"^{year}年(上|下)半年总结$", text):
+            result["halves"].append({"title": text, "summary": section_lines(doc, blocks, b)})
+            continue
+
+        qm = QUARTER_TITLE.match(text)
+        if not qm or int(qm.group(1)) != year:
+            continue
+        qnum = int(qm.group(2))
+        if qnum * 3 < m1 or qnum * 3 - 2 > m2:
+            continue
+
+        entry = {"title": text, "summary": []}
+        for hb in sub_headings(doc, blocks, b):
+            htext = block_text(hb).strip()
+            if "总结" in htext or "复盘" in htext:
+                entry["summary"] = section_lines(doc, blocks, hb)
+                continue
+            mm = MONTH_TITLE.match(htext)
+            if not mm or int(mm.group(1)) != year:
+                continue
+            mnum = int(mm.group(2))
+            if not (m1 <= mnum <= m2):
+                continue
+            wd, total = month_stats(doc, blocks, year, mnum)
+            result["months"].append({
+                "month": htext,
+                "work_days": wd,
+                "total_items": total,
+                "summary": month_summary(doc, blocks, hb),
+            })
+            result["work_days"] += wd
+            result["total_items"] += total
+        result["quarters"].append(entry)
+    return result
+
+
+def parse_period(period, at):
+    """返回 (区间标题, 年, 起月, 止月)。"""
+    if period == "quarter":
+        year_s, q_s = at.split("-Q")
+        q = int(q_s)
+        return f"{year_s}年{q}季度", int(year_s), q * 3 - 2, q * 3
+    if period == "half":
+        year_s, h_s = at.split("-H")
+        h = int(h_s)
+        return f"{year_s}年{'上' if h == 1 else '下'}半年", int(year_s), 1 if h == 1 else 7, 6 if h == 1 else 12
+    return f"{at}年度", int(at), 1, 12
+
+
+def cmd_period(doc, period, at, as_json):
     doc.tokens.refresh_if_needed()
-    view, title, is_placeholder = ensure_quickview(doc, year, month)
+    title, year, m1, m2 = parse_period(period, at)
+    data = collect_period(doc, year, m1, m2)
+    data = {"period": title, "range": f"{year}-{m1:02d} ~ {year}-{m2:02d}", **data}
+
+    if as_json:
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return
+
+    print(f"{title}（{data['range']}）")
+    if not data["months"] and not data["quarters"] and not data["halves"]:
+        print("该区间暂无记录")
+        return
+    for h in data["halves"]:
+        print(f"[半年总结] {h['title']}：{len(h['summary'])} 段")
+    for q in data["quarters"]:
+        print(f"[季度总结] {q['title']}：{len(q['summary'])} 段")
+    for m in data["months"]:
+        print(f"[月份] {m['month']} 有记录 {m['work_days']} 天，{m['total_items']} 条")
+        for line in m["summary"]:
+            print(f"  - {line}")
+    print(f"合计：有记录 {data['work_days']} 天，{data['total_items']} 条（不含开工）")
+
+
+def summary_target(period, at):
+    """返回 (父标题文字, 输出标题层级, 输出标题)。"""
+    title, _, _, _ = parse_period(period, at)
+    if period == "quarter":
+        return title, 3, f"{title}总结"
+    return "📅 行知日志", 2, f"{title}总结"
+
+
+def ensure_summary_heading(doc, parent_text, level, title):
+    blocks = doc.blocks()
+    found = find_heading(blocks, level, title)
+    if found:
+        return found, False
+
+    for b in blocks:
+        if heading_level(b) == level:
+            text = block_text(b).strip()
+            if text.startswith(f"{title}（") or text.startswith(f"{title}("):
+                return b, True
+
+    parent = find_heading(blocks, level - 1, parent_text)
+    if not parent:
+        raise RuntimeError(f"未找到父标题: {parent_text}")
+    insert_at_section_top(doc, blocks, parent, level, [make_heading(level, title)],
+                          skip_keywords=("总结", "复盘", "速览"))
+    blocks = doc.blocks()
+    found = find_heading(blocks, level, title)
+    if not found:
+        raise RuntimeError(f"创建标题失败: {title}")
+    return found, False
+
+
+def write_into(doc, heading, title, lines, force, is_placeholder):
     blocks = doc.blocks()
     page = doc.page(blocks)
     children = page.get("children", [])
     by_id = {b["block_id"]: b for b in blocks}
+    level = heading_level(heading)
 
-    start = children.index(view["block_id"])
+    start = children.index(heading["block_id"])
     end = start + 1
     while end < len(children):
         lv = heading_level(by_id.get(children[end], {}))
-        if lv and lv <= 4:
+        if lv and lv <= level:
             break
         end += 1
 
     if end > start + 1 and not force and not is_placeholder:
         print(f"{title} 已有内容，未覆盖；确需重写请加 --force")
-        return
+        return False
 
     if end > start + 1:
         doc.delete(start + 1, end)
         blocks = doc.blocks()
         page = doc.page(blocks)
         children = page.get("children", [])
-        start = children.index(view["block_id"])
+        start = children.index(heading["block_id"])
 
-    with open(path, encoding="utf-8") as f:
-        lines = [line.strip() for line in f if line.strip()]
     payload = [
         {"block_type": 2, "text": {"elements": [{"text_run": {"content": line}}]}}
         for line in lines
     ]
     doc.insert(start + 1, payload)
     if is_placeholder:
-        renamed = rename_heading(doc, view["block_id"], title)
+        renamed = rename_heading(doc, heading["block_id"], title)
         print(f"占位标题已改为 {title}" if renamed else "占位标题改名失败，内容已写入")
     print(f"{title} 已写入 {len(payload)} 段")
+    return True
+
+
+def read_draft(path):
+    with open(path, encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip()]
+
+
+def link_run(text, url):
+    return {"text_run": {"content": text,
+                         "text_element_style": {"link": {"url": urllib.parse.quote(url, safe="")}}}}
+
+
+def tenant_domain(tokens):
+    """从云盘列表里取一次企业域名，用于拼接文档地址。"""
+    r = api("GET", "/drive/v1/files?page_size=1", token=tokens.access)
+    for f in (r.get("data") or {}).get("files", []):
+        url = f.get("url") or ""
+        if "://" in url:
+            return url.split("/")[2]
+    return "feishu.cn"
+
+
+def create_child_doc(doc, title, lines):
+    r = api("POST", "/docx/v1/documents", token=doc.tokens.access, payload={"title": title})
+    if r.get("code") != 0:
+        raise RuntimeError(f"创建子文档失败: {r}")
+    sub_id = r["data"]["document"]["document_id"]
+    sub = Doc(doc.tokens, sub_id)
+    sub.insert(0, [{"block_type": 2, "text": {"elements": [{"text_run": {"content": line}}]}}
+                   for line in lines])
+    return sub_id
+
+
+def cmd_split(doc, day, min_chars):
+    """把当天超过 min_chars 的条目搬到子文档，主文档只留链接。"""
+    doc.tokens.refresh_if_needed()
+    blocks, _, title = locate_day(doc, day)
+    if not blocks:
+        print(f"{title} 尚无记录")
+        return
+    date_block = find_heading(blocks, 5, title)
+    targets = [(bid, text) for bid, text in following_items(doc, blocks, date_block)
+               if len(text) >= min_chars and "已外置" not in text]
+    if not targets:
+        print(f"{title} 无超过 {min_chars} 字的长记录")
+        return
+
+    for i, (block_id, text) in enumerate(targets, 1):
+        sub_title = f"{day.isoformat()} 长记录" + (f" {i}" if len(targets) > 1 else "")
+        sub_id = create_child_doc(doc, sub_title, [text])
+        url = f"https://{tenant_domain(doc.tokens)}/docx/{sub_id}"
+        doc.patch(block_id, [link_run(f"长文已外置：{sub_title}", url)])
+        print(f"已外置：{sub_title} → {url}")
+        time.sleep(0.3)
+    print(f"{title} 共外置 {len(targets)} 条")
+
+
+def cmd_review(doc, year, month, path, force):
+    doc.tokens.refresh_if_needed()
+    view, title, is_placeholder = ensure_quickview(doc, year, month)
+    write_into(doc, view, title, read_draft(path), force, is_placeholder)
+
+
+def cmd_review_period(doc, period, at, path, force):
+    doc.tokens.refresh_if_needed()
+    parent_text, level, title = summary_target(period, at)
+    heading, is_placeholder = ensure_summary_heading(doc, parent_text, level, title)
+    write_into(doc, heading, title, read_draft(path), force, is_placeholder)
 
 
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["init", "today", "append", "show", "update", "delete", "month", "review"])
+    parser.add_argument("action", choices=["init", "today", "append", "show", "update", "delete",
+                                           "month", "period", "review", "split"])
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--date", default="")
     parser.add_argument("--month", default="")
+    parser.add_argument("--period", default="", choices=["", "quarter", "half", "year"])
+    parser.add_argument("--at", default="")
     parser.add_argument("--file", default="")
     parser.add_argument("--old", default="")
     parser.add_argument("--new", default="")
@@ -651,6 +892,7 @@ def main():
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--min-chars", type=int, default=120)
     args = parser.parse_args()
 
     cfg = load_env()
@@ -677,12 +919,23 @@ def main():
         month = args.month or day.strftime("%Y-%m")
         year, mon = month.split("-")
         cmd_month(doc, int(year), int(mon), args.json)
+    elif args.action == "split":
+        cmd_split(doc, day, args.min_chars)
+    elif args.action == "period":
+        if not args.period or not args.at:
+            parser.error("period 需要 --period quarter|half|year 和 --at，如 --at 2026-Q4 / 2026-H2 / 2026")
+        cmd_period(doc, args.period, args.at, args.json)
     elif args.action == "review":
         if not args.file:
             parser.error("review 需要 --file")
-        month = args.month or day.strftime("%Y-%m")
-        year, mon = month.split("-")
-        cmd_review(doc, int(year), int(mon), args.file, args.force)
+        if args.period:
+            if not args.at:
+                parser.error("review --period 需要 --at，如 --at 2026-Q4 / 2026-H2 / 2026")
+            cmd_review_period(doc, args.period, args.at, args.file, args.force)
+        else:
+            month = args.month or day.strftime("%Y-%m")
+            year, mon = month.split("-")
+            cmd_review(doc, int(year), int(mon), args.file, args.force)
     else:
         cmd_show(doc, day)
 
